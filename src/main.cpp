@@ -79,7 +79,7 @@ int main(){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Core-profile setting
    
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "TESTING WINDOW", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "MINECRAFT KILLER (DLSS 5)", NULL, NULL);
     if (window == NULL){
         printf("Failed to create GLFW window");
         glfwTerminate();
@@ -110,7 +110,7 @@ int main(){
     fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
     fragmentShader3 = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(vertexShader1, 1, &vertexShader1Source, NULL);
-    glShaderSource(vertexShader2, 1, &vertexShader1Source, NULL);
+    glShaderSource(vertexShader2, 1, &vertexShader2Source, NULL);
     glShaderSource(fragmentShader1, 1, &fragmentShader1Source, NULL);
     glShaderSource(fragmentShader2, 1, &fragmentShader2Source, NULL);
     glShaderSource(fragmentShader3, 1, &fragmentShader3Source, NULL);
