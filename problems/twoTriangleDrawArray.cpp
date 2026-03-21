@@ -22,13 +22,6 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "out vec4 fragColor;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "    fragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-                                   "}\0";
-
-const char *fragmentShaderSource2 = "#version 330 core\n"
-                                   "out vec4 fragColor;\n"
-                                   "void main()\n"
-                                   "{\n"
                                    "    fragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
                                    "}\0";
 
@@ -84,20 +77,6 @@ int main(){
         2, 3, 4
     };
 
-    float triangle_1[] = {
-        0.5f,  0.5f, 0.0f,
-        1.0f, -0.5f, 0.0f,
-        0.0f, -0.5f, 0.0f
-    };
-
-    float triangle_2[] = {
-         0.0f, -0.5f, 0.0f,
-        -1.0f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
-    };
-
-    unsigned int triangleIndex[] = { 0, 1, 2 };
-
     float squareVertices[] = {
          0.5f,  0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
@@ -111,33 +90,21 @@ int main(){
     };
 
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
-    unsigned int VAO_1;
-    glGenVertexArrays(1, &VAO_1);
-    glBindVertexArray(VAO_1);
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
 
     // CREATION OF THE VERTEX BUFFER OBJECT THAT WILL STORE ALL THE VERTEX DATA
-    unsigned int VBO_1;
-    glGenBuffers(1, &VBO_1);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_1), triangle_1, GL_STATIC_DRAW);
-    
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    unsigned int VAO_2;
-    glGenVertexArrays(1, &VAO_2);
-    glBindVertexArray(VAO_2);
-
-    unsigned int VBO_2;
-    glGenBuffers(1, &VBO_2);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_2), triangle_2, GL_STATIC_DRAW);
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(twoTriangleVertices), twoTriangleVertices, GL_STATIC_DRAW);
 
     // CREATION OF THE ELEMENT BUFFER OBJECT THAT WILL STORE THE twoTriagIndices OF THE VERTICES
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangleIndex), triangleIndex, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(twoTriagIndices), twoTriagIndices, GL_STATIC_DRAW);
    
     // WE SPECIFY HOW THE GPU SHOULD READ THE DATA USING THE (VERTEX ATTRIBUTE POINTER) AND THE WE ENABLE IT
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -152,11 +119,6 @@ int main(){
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
-
-    unsigned int fragShader2; // TEMPORAL FRAGMENT SHADER
-    fragShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragShader2, 1, &fragmentShaderSource2, NULL);
-    glCompileShader(fragShader2);
 
     ///////////////////// LOG SHADER ////////////////////////
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -178,18 +140,9 @@ int main(){
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram (shaderProgram);
 
+    glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    unsigned int secondProgram;
-    secondProgram = glCreateProgram();
-
-    glAttachShader(secondProgram, vertexShader);
-    glAttachShader(secondProgram, fragShader2);
-    glLinkProgram(secondProgram);
-
-
-    glDeleteShader(vertexShader);
-    
     ///////////////////// LOG SHADER ////////////////////////
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success){
@@ -208,12 +161,8 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT); // State-using function 
 
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO_1);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0);
-        glUseProgram(secondProgram);
-        glBindVertexArray(VAO_2);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); 
         glBindVertexArray(0);
 
