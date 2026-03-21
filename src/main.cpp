@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "../include/shader.h"
+
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
 
@@ -253,6 +255,8 @@ int main(){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangleIndex), triangleIndex, GL_STATIC_DRAW);
 
+    Shader myShader("../shaders/vertexTemp.vs", "../shaders/fragmentTemp.fs");
+
     float r = 0; float g = 0; float b = 0;
 
     while (!glfwWindowShouldClose(window)){
@@ -265,7 +269,8 @@ int main(){
         float timeValue = glfwGetTime();
         
         // FIRST TRIANGLE
-        glUseProgram(shaderProgram3);
+        //glUseProgram(shaderProgram3);
+        myShader.use();
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
       

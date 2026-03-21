@@ -13,6 +13,7 @@ find_package(Threads REQUIRED)
 # This defines that "getStarted" exists
 add_executable(test
     src/main.cpp 
+    src/shader.cpp
     src/glad.c
 )
 
