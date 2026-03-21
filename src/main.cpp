@@ -33,12 +33,12 @@ const char *vertexShader2Source = "#version 330 core\n"
 
 
 const char *fragmentShader1Source = "#version 330 core\n"
-                                   "out vec4 fragColor;\n"
-                                   "uniform vec4 ourColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "    fragColor = ourColor;\n"
-                                   "}\0";
+                                    "out vec4 fragColor;\n"
+                                    "uniform vec4 ourColor;\n"
+                                    "void main()\n"
+                                    "{\n"
+                                    "    fragColor = ourColor;\n"
+                                    "}\0";
 
 const char *fragmentShader2Source = "#version 330 core\n"
                                     "in vec4 vertexColor;\n"
@@ -262,6 +262,8 @@ int main(){
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
         glClear(GL_COLOR_BUFFER_BIT); // State-using function 
        
+        float timeValue = glfwGetTime();
+        
         // FIRST TRIANGLE
         glUseProgram(shaderProgram3);
         glBindVertexArray(VAO[0]);
@@ -270,7 +272,6 @@ int main(){
         // SECOND TRIANGLE
         glUseProgram(shaderProgram1);
          
-        float timeValue = glfwGetTime();
         float greenVal = (sin(timeValue) / 2) + 0.5f;
         int vertexColorLocation = glGetUniformLocation(shaderProgram1, "ourColor");
         glUniform4f(vertexColorLocation, 0.0, greenVal, 0.0, 1.0);
