@@ -31,7 +31,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath){
 
         
     } catch (std::ifstream::failure e){
-        std::cout << "ERROR::SHADER::FILE_NOT_FOUND_SUCCESFULLY_READ" << e.what() << std::endl;
+        std::cout << "ERROR::SHADER::FILE_NOT_FOUND_SUCCESFULLY_READ::" << e.what() << std::endl;
     }
 
     const char *vShaderCode = vertexCode.c_str();
@@ -81,6 +81,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath){
 }
 
 void Shader::use(){ glUseProgram(ID); }
+unsigned int Shader::getShaderID(){ return ID; }
 
 void Shader::setBool(const std::string name, bool value) const{
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
