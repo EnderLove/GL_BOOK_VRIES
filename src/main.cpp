@@ -102,9 +102,9 @@ int main(){
     };
 
     // TEXTURE CREATION
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    unsigned int boxTexture;
+    glGenTextures(1, &boxTexture);
+    glBindTexture(GL_TEXTURE_2D, boxTexture);
 
     // SETTING THE WRAPPING/FILTERING OPTIONS
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -112,17 +112,36 @@ int main(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
+    stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
     // LOAD AND GENERATE THE TEXTURE
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("../resources/textures/powerCat.jpg", &width, &height, &nrChannels, 0);
-    if (data){
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    unsigned char *texBoxData = stbi_load("../resources/textures/container.jpg", &width, &height, &nrChannels, 0);
+    if (texBoxData){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texBoxData);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
         printf("FAILED TO LOAD TEXTURE\n");
     }
-    stbi_image_free(data);
+    stbi_image_free(texBoxData);
 
+    unsigned int faceTexture;
+    glGenTextures(1, &faceTexture);
+    glBindTexture(GL_TEXTURE_2D, faceTexture);
+
+    // SETTING THE WRAPPING/FILTERING OPTIONS
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+ 
+    unsigned char *texFaceData = stbi_load("../resources/textures/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (texFaceData){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texFaceData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        printf("FAILED TO LOAD TEXTURE\n");
+    }
+    stbi_image_free(texFaceData);
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
     unsigned int VAO[3], VBO[3], EBO[3]; 
     glGenVertexArrays(3, VAO);
@@ -178,6 +197,10 @@ int main(){
 
     float r = 0; float g = 0; float b = 0;
 
+    textureShader.use();
+    textureShader.setInt("texture1", 0);
+    textureShader.setInt("texture2", 1);
+
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window, &r, &g, &b);
@@ -201,7 +224,10 @@ int main(){
         int offsetVertexLocation = glGetUniformLocation(textureShader.getShaderID(), "xOffset");
         glUniform1f(offsetVertexLocation, xOffset);
 
-        glBindTexture(GL_TEXTURE_2D, texture); 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, boxTexture); 
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, faceTexture);
         glBindVertexArray(VAO[2]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); 
 
