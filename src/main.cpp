@@ -157,7 +157,7 @@ int main(){
     // SQUARE CREATION
     glBindVertexArray(VAO[2]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -167,7 +167,7 @@ int main(){
     glEnableVertexAttribArray(2);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
 
     Shader interpolShader   ("../shaders/interpolationVertex.vert"    , "../shaders/interpolationFragment.frag");
     Shader uniformTestShader("../shaders/testUniformVertexShader.vert", "../shaders/testUniformFragmentShader.frag");
