@@ -11,54 +11,6 @@ const int SCR_SOURCE_HEIGHT = 1080;
 const int SCR_WIDTH  = 16 * 80;
 const int SCR_HEIGHT =  9 * 90;
 
-int success;       // DEBUG VALUE
-char infoLog[512]; // DEBUG BUFFER
-
-const char *vertexShader1Source = "#version 330 core\n"
-                                  "layout (location = 0) in vec3 aPos;\n"
-                                  "out vec4 vertexColor;\n"
-                                  "void main()\n"
-                                  "{\n"
-                                  "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-                                  "  vertexColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
-                                  "}\0";
-
-const char *vertexShader2Source = "#version 330 core\n"
-                                  "layout (location = 0) in vec3 aPos;\n"
-                                  "layout (location = 1) in vec3 aColor;\n"
-                                  "out vec3 myColor;\n"
-                                  "void main()\n"
-                                  "{\n"
-                                  "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-                                  "  myColor = aColor;\n"
-                                  "}\0";
-
-
-const char *fragmentShader1Source = "#version 330 core\n"
-                                    "out vec4 fragColor;\n"
-                                    "uniform vec4 ourColor;\n"
-                                    "void main()\n"
-                                    "{\n"
-                                    "    fragColor = ourColor;\n"
-                                    "}\0";
-
-const char *fragmentShader2Source = "#version 330 core\n"
-                                    "in vec4 vertexColor;\n"
-                                    "out vec4 fragColor;\n"
-                                    "void main()\n"
-                                    "{\n"
-                                    "    fragColor = vertexColor;\n"
-                                    "}\0";
-
-const char *fragmentShader3Source = "#version 330 core\n"
-                                    "in vec3 myColor;\n"
-                                    "out vec4 fragColor;\n"
-                                    "void main()\n"
-                                    "{\n"
-                                    "   fragColor = vec4(myColor, 1.0);\n"
-                                    "}\0";
-
-
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
     printf("RESIZE: %4d | %4d\n", width, height);
@@ -142,8 +94,9 @@ int main(){
     };
 
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
-    unsigned int VAO[2], VBO[2]; 
+    unsigned int VAO[2], VBO[2], EBO[2]; 
     glGenVertexArrays(2, VAO);
+    glGenBuffers(2, EBO);
     glGenBuffers(2, VBO);
 
     // CREATION OF THE VERTEX BUFFER OBJECT THAT WILL STORE ALL THE VERTEX DATA
@@ -155,6 +108,10 @@ int main(){
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    
+    // CREATION OF THE ELEMENT BUFFER OBJECT THAT WILL STORE THE twoTriagIndices OF THE VERTICES
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangleIndex), triangleIndex, GL_STATIC_DRAW);
 
     glBindVertexArray(VAO[1]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
@@ -164,10 +121,7 @@ int main(){
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // CREATION OF THE ELEMENT BUFFER OBJECT THAT WILL STORE THE twoTriagIndices OF THE VERTICES
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triangleIndex), triangleIndex, GL_STATIC_DRAW);
 
     Shader interpolShader("../shaders/interpolationVertex.vert",
@@ -176,7 +130,12 @@ int main(){
     Shader uniformTestShader("../shaders/testUniformVertexShader.vert",
                              "../shaders/testUniformFragmentShader.frag");
 
-    Shader myShader("../shaders/vertexTemp.vs", "../shaders/fragmentTemp.fs");
+    Shader upsideDownShader("../shaders/upsideDownVertexShader.vert",
+                            "../shaders/testUniformFragmentShader.frag");
+
+    Shader IOVertexShader("../shaders/outPosVertexShader.vert", "../shaders/inPosFragmentShader.frag");
+
+    //Shader myShader("../shaders/vertexTemp.vs", "../shaders/fragmentTemp.fs");
 
     float r = 0; float g = 0; float b = 0;
 
@@ -189,20 +148,29 @@ int main(){
        
         float timeValue = glfwGetTime();
         
-        // FIRST TRIANGLE
+        /////////////////////////////////// FIRST TRIANGLE //////////////////////////////////////
         interpolShader.use();
         glBindVertexArray(VAO[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
       
-        // SECOND TRIANGLE
-        uniformTestShader.use(); 
+        ////////////////////////////////// SECOND TRIANGLE //////////////////////////////////////
+        //uniformTestShader.use(); 
+       
+        /*
+        upsideDownShader.use();
         float greenVal = (sin(timeValue) / 2) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(uniformTestShader.getShaderID(), "ourColor");
-        glUniform4f(vertexColorLocation, 0.0, greenVal, 0.0, 1.0);
         
+        int vertexColorLocation   = glGetUniformLocation(upsideDownShader.getShaderID(), "ourColor");
+        int xOffsetVertexLocation = glGetUniformLocation(upsideDownShader.getShaderID(),  "xOffset" );
+
+        glUniform1f(xOffsetVertexLocation, greenVal);
+        glUniform4f(vertexColorLocation, 0.0, greenVal, 0.0, 1.0);
+        */
+        
+        // TODO:FIX THE SHADERS OF IOVERTEXSHADER
+        IOVertexShader.use();
         glBindVertexArray(VAO[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); 
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0); 
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -210,3 +178,4 @@ int main(){
     glfwTerminate();
     return 0;
 }
+//glDrawArrays(GL_TRIANGLES, 0, 3);
