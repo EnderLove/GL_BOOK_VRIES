@@ -13,9 +13,9 @@ class Shader{
         unsigned int ID; // Program ID
         
         Shader(const char *vertexPath, const char *fragmentPath);
-        void use();
+        void use(); // Activates the shader program
 
-        unsigned int getShaderID();
+        unsigned int getShaderID(); // Return the shader ID
 
         // Utility uniform functions
         void setBool (const std::string name, bool  value) const;

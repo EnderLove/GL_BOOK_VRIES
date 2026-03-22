@@ -1,5 +1,7 @@
 #include "../include/shader.h"
 
+#define LOG_BUFFER_SIZE 512
+
 Shader::Shader(const char *vertexPath, const char *fragmentPath){
     std::string vertexCode;
     std::string fragmentCode;
@@ -28,7 +30,6 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath){
         // Convert stream into string 
         vertexCode   = vShaderStream.str();
         fragmentCode = fShaderStream.str();
-
         
     } catch (std::ifstream::failure e){
         std::cout << "ERROR::SHADER::FILE_NOT_FOUND_SUCCESFULLY_READ::" << e.what() << std::endl;
@@ -39,27 +40,27 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath){
 
     unsigned int vertex, fragment;
     int success;
-    char infoLog[512];
+    char infoLog[LOG_BUFFER_SIZE]; // INFO LOG BUFFER
 
-    // Vertex shader
+    // VERTEX SHADER 
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
 
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success){
-        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+        glGetShaderInfoLog(vertex, LOG_BUFFER_SIZE, NULL, infoLog);
         printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s\n", infoLog);
     }
 
-    // Fragment shader
+    // FRAGMENT SHADER  
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
 
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if (!success){
-        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
+        glGetShaderInfoLog(fragment, LOG_BUFFER_SIZE, NULL, infoLog);
         printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s\n", infoLog);
     }
 
@@ -72,7 +73,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath){
     
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
     if (!success){
-        glGetProgramInfoLog(ID, 512, NULL, infoLog);
+        glGetProgramInfoLog(ID, LOG_BUFFER_SIZE, NULL, infoLog);
         printf("ERROR::lINKING::SHADER::FAILED\n%s\n", infoLog);
     }
 

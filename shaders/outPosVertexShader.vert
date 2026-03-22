@@ -4,7 +4,7 @@ out vec3 vertexPos;
 
 void main()
 {
-    gl_Position = vec4(vertexPos, 1.0);
+    gl_Position = vec4(aPos, 1.0);
     vertexPos = aPos;
 }
 

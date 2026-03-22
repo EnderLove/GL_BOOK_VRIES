@@ -2,7 +2,8 @@
 in vec3 vertexPos;
 out vec4 fragColor;
 
-void main(){
+void main()
+{
     fragColor = vec4(vertexPos, 1.0);
 }
 
