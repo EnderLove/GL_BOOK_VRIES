@@ -29,6 +29,11 @@ void processColorScreen(GLFWwindow *window, float *r, float *g, float *b){
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) { *b += 0.01f; if (*b > 1) *b = 0; }
 }
 
+void processAlphaBlend(GLFWwindow *window, float *alphaBlendVal){
+    if (glfwGetKey(window, GLFW_KEY_UP)   == GLFW_PRESS) { *alphaBlendVal += 0.01f; if (*alphaBlendVal > 2) *alphaBlendVal = 0; }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) { *alphaBlendVal -= 0.01f; if (*alphaBlendVal < 0) *alphaBlendVal = 2; }
+}
+
 int main(){
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -107,10 +112,10 @@ int main(){
     glBindTexture(GL_TEXTURE_2D, boxTexture);
 
     // SETTING THE WRAPPING/FILTERING OPTIONS
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     
     stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
     // LOAD AND GENERATE THE TEXTURE
@@ -131,8 +136,8 @@ int main(){
     // SETTING THE WRAPPING/FILTERING OPTIONS
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_NEAREST
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
  
     unsigned char *texFaceData = stbi_load("../resources/textures/awesomeface.png", &width, &height, &nrChannels, 0);
     if (texFaceData){
@@ -196,6 +201,7 @@ int main(){
     //Shader myShader("../shaders/vertexTemp.vs", "../shaders/fragmentTemp.fs");
 
     float r = 0; float g = 0; float b = 0;
+    float alphaBlendVal = 0;
 
     textureShader.use();
     textureShader.setInt("texture1", 0);
@@ -204,6 +210,7 @@ int main(){
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window, &r, &g, &b);
+        processAlphaBlend(window, &alphaBlendVal);
        
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
         glClear(GL_COLOR_BUFFER_BIT); // State-using function 
@@ -223,6 +230,9 @@ int main(){
         float xOffset = (sin(timeValue) / 2) + 0.5f;
         int offsetVertexLocation = glGetUniformLocation(textureShader.getShaderID(), "xOffset");
         glUniform1f(offsetVertexLocation, xOffset);
+
+        int alphaBlendFragLocation = glGetUniformLocation(textureShader.getShaderID(), "alphaBlend");
+        glUniform1f(alphaBlendFragLocation, alphaBlendVal);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, boxTexture); 
