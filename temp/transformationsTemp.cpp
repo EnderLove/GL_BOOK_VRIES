@@ -9,10 +9,8 @@
 #include <math.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
+#include "stb_image.h"
 #include "shader.h"
-
-#include "load2DTexture.h"
 
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
@@ -115,16 +113,56 @@ int main(){
     };
 
     glm::vec3 cubePosition[] = {
-        glm::vec3( 0.0f,  0.0f,   0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f,  -2.5f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3( 2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f,  -3.5f),
-        glm::vec3(-1.7f,  3.0f,  -7.5f),
-        glm::vec3( 1.3f, -2.0f,  -2.5f),
-        glm::vec3( 1.5f,  2.0f,  -2.5f),
-        glm::vec3( 1.5f,  0.2f,  -1.5f),
-        glm::vec3(-1.3f,  1.0f,  -1.5f)
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f, 2.0f, -2.5f),
+        glm::vec3( 1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
+
+    float twoTriangleVertices[] = {
+         0.5f,  0.5f, 0.0f,
+         1.0f, -0.5f, 0.0f,
+         0.0f, -0.5f, 0.0f,
+         0.0f, -0.5f, 0.0f,
+        -1.0f, -0.5f, 0.0f,
+        -0.5f,  0.5f, 0.0f
+    };
+
+    unsigned int twoTriagIndices[] = {
+        0, 1, 2,
+        2, 3, 4
+    };
+
+    float triangle_1[] = {
+        0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+        1.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+    };
+
+    float triangle_2[] = {
+         0.0f, -0.5f, 0.0f,
+        -1.0f, -0.5f, 0.0f,
+        -0.5f,  0.5f, 0.0f
+    };
+
+    unsigned int triangleIndex[] = { 0, 1, 2 };
+
+    float squareVertices[] = {
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+    };
+
+    unsigned int squareIndices[] = {
+        0, 1, 3,
+        1, 2, 3 
     };
 
     float texCoords[] = {
@@ -133,20 +171,47 @@ int main(){
         0.5f, 1.0f
     };
 
-    stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
-   
     // TEXTURE CREATION ///////////////////////////////////////////////////////////////////////////////////////////
-    unsigned int containerTex;
-    Gen2DTexture containerTexture(containerTex, 1);
-    containerTexture.bindTexture();
-    containerTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    containerTexture.texData("../resources/textures/container.jpg", GL_RGB);
+    unsigned int boxTexture;
+    glGenTextures(1, &boxTexture);
+    glBindTexture(GL_TEXTURE_2D, boxTexture);
 
-    unsigned int tempText;
-    Gen2DTexture tempTexture(tempText, 1);
-    tempTexture.bindTexture();
-    tempTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    tempTexture.texData("../resources/textures/awesomeface.png", GL_RGBA);
+    // SETTING THE WRAPPING/FILTERING OPTIONS
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
+    stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
+    // LOAD AND GENERATE THE TEXTURE
+    int width, height, nrChannels;
+    unsigned char *texBoxData = stbi_load("../resources/textures/container.jpg", &width, &height, &nrChannels, 0);
+    if (texBoxData){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texBoxData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        printf("FAILED TO LOAD TEXTURE\n");
+    }
+    stbi_image_free(texBoxData);
+
+    unsigned int faceTexture;
+    glGenTextures(1, &faceTexture);
+    glBindTexture(GL_TEXTURE_2D, faceTexture);
+
+    // SETTING THE WRAPPING/FILTERING OPTIONS
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_NEAREST
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+ 
+    unsigned char *texFaceData = stbi_load("../resources/textures/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (texFaceData){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texFaceData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        printf("FAILED TO LOAD TEXTURE\n");
+    }
+    stbi_image_free(texFaceData);
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
@@ -170,8 +235,13 @@ int main(){
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
     }
 
+    Shader interpolShader   ("../shaders/interpolationVertex.vert"    , "../shaders/interpolationFragment.frag");
+    Shader uniformTestShader("../shaders/testUniformVertexShader.vert", "../shaders/testUniformFragmentShader.frag");
+    Shader upsideDownShader ("../shaders/upsideDownVertexShader.vert" , "../shaders/testUniformFragmentShader.frag");
+    Shader IOVertexShader   ("../shaders/outPosVertexShader.vert"     , "../shaders/inPosFragmentShader.frag"); // Send the vertex pos to the fragmenColor
+    Shader textureShader    ("../shaders/squareVertexShader.vert"     , "../shaders/squareFragmentShader.frag");
+    //Shader myShader("../shaders/vertexTemp.vs", "../shaders/fragmentTemp.fs");
 
-    Shader textureShader("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
     float r = 0; float g = 0; float b = 0;
     float alphaBlendVal = 0;
 
@@ -215,12 +285,9 @@ int main(){
         glUniform1f(alphaBlendFragLocation, alphaBlendVal);
 
         glActiveTexture(GL_TEXTURE0);
-        containerTexture.bindTexture();
-        //glBindTexture(GL_TEXTURE_2D, boxTexture); 
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, faceTexture);
+        glBindTexture(GL_TEXTURE_2D, boxTexture); 
         glActiveTexture(GL_TEXTURE1);
-        tempTexture.bindTexture();
+        glBindTexture(GL_TEXTURE_2D, faceTexture);
       
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, timeValue, glm::vec3(0.5f, 1.0f, 0.0f));
@@ -241,7 +308,6 @@ int main(){
         for (unsigned int i = 0; i < 10; i++){
             model = glm::mat4(1.0f);
             model = glm::translate(model, cubePosition[i]);
-            model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle + timeValue * 10), glm::vec3(1.0f, 0.3f, 0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));

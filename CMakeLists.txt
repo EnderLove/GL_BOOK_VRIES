@@ -14,6 +14,7 @@ find_package(Threads REQUIRED)
 add_executable(test
     src/main.cpp 
     src/shader.cpp
+    src/load2DTexture.cpp
     src/glad.c
 )
 
