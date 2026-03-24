@@ -127,6 +127,18 @@ int main(){
         glm::vec3(-1.3f,  1.0f,  -1.5f)
     };
 
+    float floorVertices[] = {
+        -0.5f, 0.0f, -0.5f, 0.0f, 2.0f,
+         0.5f, 0.0f, -0.5f, 2.0f, 2.0f,
+         0.5f, 0.0f,  0.5f, 2.0f, 0.0f,
+        -0.5f, 0.0f,  0.5f, 0.0f, 0.0f,
+    };
+
+    unsigned int floorIndices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+
     float texCoords[] = {
         0.0f, 0.0f,
         1.0f, 0.0f,
@@ -143,10 +155,16 @@ int main(){
     containerTexture.texData("../resources/textures/container.jpg", GL_RGB);
 
     unsigned int tempText;
-    Gen2DTexture tempTexture(tempText, 1);
-    tempTexture.bindTexture();
-    tempTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    tempTexture.texData("../resources/textures/awesomeface.png", GL_RGBA);
+    Gen2DTexture faceTexture(tempText, 1);
+    faceTexture.bindTexture();
+    faceTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+    faceTexture.texData("../resources/textures/awesomeface.png", GL_RGBA);
+
+    unsigned int floorTex;
+    Gen2DTexture floorTexture(floorTex, 1);
+    floorTexture.bindTexture();
+    floorTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+    floorTexture.texData("../resources/textures/rockFloor.jpg", GL_RGB);
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
@@ -170,8 +188,26 @@ int main(){
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
     }
 
+    unsigned int floorVAO, floorVBO, floorEBO;
+    glGenVertexArrays(1, &floorVAO);
+    glGenBuffers(1, &floorVBO);
+    glGenBuffers(1, &floorEBO);
+    glBindVertexArray(floorVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, floorVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), floorIndices, GL_STATIC_DRAW);
+
+
+    Shader floorShader  ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
     Shader textureShader("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
+
     float r = 0; float g = 0; float b = 0;
     float alphaBlendVal = 0;
 
@@ -179,10 +215,8 @@ int main(){
     textureShader.setInt("texture1", 0);
     textureShader.setInt("texture2", 1);
 
-    //glm::mat4 trans = glm::mat4(1.0f);
-    
-    //trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    //trans = glm::scale (trans, glm::vec3(0.5f, 0.5f, 0.5f));
+    floorShader.use();
+    floorShader.setInt("floorTexture", 2);
 
     while (!glfwWindowShouldClose(window)){
         processInput(window);
@@ -195,38 +229,25 @@ int main(){
         glClear(GL_DEPTH_BUFFER_BIT); 
 
         float timeValue = glfwGetTime();
-        
-        textureShader.use();
-
-        /*
-        float xOffset = (sin(timeValue) / 2) + 0.5f;
-        int offsetVertexLocation = glGetUniformLocation(textureShader.getShaderID(), "xOffset");
-        glUniform1f(offsetVertexLocation, xOffset);
-
-
-        glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        trans = glm::rotate(trans, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
-
-        unsigned int transVertexLocation = glGetUniformLocation(textureShader.getShaderID(), "transform");
-        glUniformMatrix4fv(transVertexLocation, 1, GL_FALSE, glm::value_ptr(trans));
-        */
-        int alphaBlendFragLocation = glGetUniformLocation(textureShader.getShaderID(), "alphaBlend");
-        glUniform1f(alphaBlendFragLocation, alphaBlendVal);
 
         glActiveTexture(GL_TEXTURE0);
         containerTexture.bindTexture();
-        //glBindTexture(GL_TEXTURE_2D, boxTexture); 
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, faceTexture);
         glActiveTexture(GL_TEXTURE1);
-        tempTexture.bindTexture();
-      
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, timeValue, glm::vec3(0.5f, 1.0f, 0.0f));
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        faceTexture.bindTexture();
+        glActiveTexture(GL_TEXTURE2);
+        floorTexture.bindTexture();
+
+
+        textureShader.use();
+        int alphaBlendFragLocation = glGetUniformLocation(textureShader.getShaderID(), "alphaBlend");
+        glUniform1f(alphaBlendFragLocation, alphaBlendVal);
+
+        glm::mat4 model      = glm::mat4(1.0f);
+        glm::mat4 view       = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
+
+        model      = glm::rotate(model, timeValue, glm::vec3(0.5f, 1.0f, 0.0f));
+        view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
         unsigned int modelLoc = glGetUniformLocation(textureShader.getShaderID(), "model");
@@ -247,7 +268,23 @@ int main(){
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+ 
+        floorShader.use();
+        model = glm::mat4(1.0f);
+        view  = glm::mat4(1.0f);
+        //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::scale (model, glm::vec3(3.0f, 0.0f, 3.0f));
+        view  = glm::translate(view, glm::vec3(0.0f, -1.0f, -3.0f));
+       
+        unsigned int floorModelLoc = glGetUniformLocation(floorShader.getShaderID(), "model");
+        unsigned int floorViewLoc  = glGetUniformLocation(floorShader.getShaderID(), "view");
+        unsigned int floorProjLoc  = glGetUniformLocation(floorShader.getShaderID(), "projection");
+        glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(projection));
+        
+        glBindVertexArray(floorVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
