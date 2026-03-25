@@ -30,6 +30,14 @@ void processInput(GLFWwindow *window){
         glfwSetWindowShouldClose(window, true);
 }
 
+void processCameraInput(GLFWwindow *window, glm::vec3 &cPos, glm::vec3 &cUp, glm::vec3 &cFront, float deltaTime){
+    const float cameraSpeed = deltaTime * 3.0f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) { cPos += cameraSpeed * cFront; }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) { cPos -= cameraSpeed * cFront; }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) { cPos -= glm::normalize(glm::cross(cFront, cUp)) * cameraSpeed; }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) { cPos += glm::normalize(glm::cross(cFront, cUp)) * cameraSpeed; }
+}
+
 void processColorScreen(GLFWwindow *window, float *r, float *g, float *b){
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) { *r += 0.01f; if (*r > 1) *r = 0; }
     if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) { *g += 0.01f; if (*g > 1) *g = 0; }
@@ -128,9 +136,9 @@ int main(){
     };
 
     float floorVertices[] = {
-        -0.5f, 0.0f, -0.5f, 0.0f, 2.0f,
-         0.5f, 0.0f, -0.5f, 2.0f, 2.0f,
-         0.5f, 0.0f,  0.5f, 2.0f, 0.0f,
+        -0.5f, 0.0f, -0.5f, 0.0f, 4.0f,
+         0.5f, 0.0f, -0.5f, 4.0f, 4.0f,
+         0.5f, 0.0f,  0.5f, 4.0f, 0.0f,
         -0.5f, 0.0f,  0.5f, 0.0f, 0.0f,
     };
 
@@ -158,14 +166,16 @@ int main(){
     Gen2DTexture faceTexture(tempText, 1);
     faceTexture.bindTexture();
     faceTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    faceTexture.texData("../resources/textures/awesomeface.png", GL_RGBA);
+    faceTexture.texData("../resources/textures/powerCat.jpg", GL_RGB);
 
     unsigned int floorTex;
     Gen2DTexture floorTexture(floorTex, 1);
     floorTexture.bindTexture();
     floorTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    floorTexture.texData("../resources/textures/rockFloor.jpg", GL_RGB);
+    floorTexture.texData("../resources/textures/wall.jpg", GL_RGB);
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
     unsigned int VAO[2], VBO[2], EBO[2]; 
@@ -208,7 +218,7 @@ int main(){
     Shader floorShader  ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
     Shader textureShader("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
 
-    float r = 0; float g = 0; float b = 0;
+    float r = 0.5f; float g = 0.4f; float b = 0.7f;
     float alphaBlendVal = 0;
 
     textureShader.use();
@@ -218,9 +228,17 @@ int main(){
     floorShader.use();
     floorShader.setInt("floorTexture", 2);
 
+    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+
+    float deltaTime = 0.0f; // Time between current frame and last frame
+    float lastFrame = 0.0f; // Time of last frame
+
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window, &r, &g, &b);
+        processCameraInput(window, cameraPos, cameraUp, cameraFront, deltaTime);
         processAlphaBlend(window, &alphaBlendVal);
        
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
@@ -228,7 +246,9 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT); 
         glClear(GL_DEPTH_BUFFER_BIT); 
 
-        float timeValue = glfwGetTime();
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
         glActiveTexture(GL_TEXTURE0);
         containerTexture.bindTexture();
@@ -246,8 +266,16 @@ int main(){
         glm::mat4 view       = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
-        model      = glm::rotate(model, timeValue, glm::vec3(0.5f, 1.0f, 0.0f));
-        view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        model      = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
+        //view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+       
+
+        //const float radius = 8.0f;
+        //float camX = sin(glfwGetTime() / 3) * radius;
+        //float camZ = cos(glfwGetTime() / 3) * radius;
+        //view = glm::lookAt(glm::vec3(camX, 3.0f, camZ), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); 
+
         projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
         unsigned int modelLoc = glGetUniformLocation(textureShader.getShaderID(), "model");
@@ -264,17 +292,18 @@ int main(){
             model = glm::translate(model, cubePosition[i]);
             model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
             float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle + timeValue * 10), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
  
         floorShader.use();
         model = glm::mat4(1.0f);
-        view  = glm::mat4(1.0f);
+        //view  = glm::mat4(1.0f);
         //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::scale (model, glm::vec3(3.0f, 0.0f, 3.0f));
-        view  = glm::translate(view, glm::vec3(0.0f, -1.0f, -3.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -2.8f, 0.0f));
+        model = glm::scale (model, glm::vec3(20.0f, 0.0f, 20.0f));
+        //view  = glm::translate(view, glm::vec3(0.0f, -1.0f, -3.0f));
        
         unsigned int floorModelLoc = glGetUniformLocation(floorShader.getShaderID(), "model");
         unsigned int floorViewLoc  = glGetUniformLocation(floorShader.getShaderID(), "view");

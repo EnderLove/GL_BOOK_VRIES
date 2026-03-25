@@ -3,7 +3,7 @@
 Gen2DTexture::Gen2DTexture(unsigned int &name, unsigned int n){
     glGenTextures(1, &name);
     ID = &name;
-    printf("%p || %p\n", ID, &name);
+    printf("%p || %p\n", ID, &name); // Debug printf
 }
 
 void Gen2DTexture::bindTexture(){ glBindTexture(GL_TEXTURE_2D, *ID); }
@@ -21,8 +21,9 @@ void Gen2DTexture::texData(char const *path, int sourceColorType){
     if (texBoxData){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, sourceColorType, GL_UNSIGNED_BYTE, texBoxData);
         glGenerateMipmap(GL_TEXTURE_2D);
+        printf("TEXTURE LOADED: %s\n", path);
     } else {
-        printf("FAILED TO LOAD TEXTURE\n");
+        printf("FAILED TO LOAD TEXTURE: %s\n", path);
     }
     stbi_image_free(texBoxData);
 }
