@@ -20,10 +20,51 @@ const int SCR_SOURCE_HEIGHT = 1080;
 const int SCR_WIDTH  = 16 * 80;
 const int SCR_HEIGHT =  9 * 90;
 
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
+
+double yaw = -90.0f;
+double pitch = 0.0f;
+float lastX = (float)SCR_WIDTH  / 2;
+float lastY = (float)SCR_HEIGHT / 2;
+bool firstMouse = true;
+
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
     printf("RESIZE: %4d | %4d\n", width, height);
 }
+
+void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
+
+    if (firstMouse){
+        lastX = xPos;
+        lastY = yPos;
+        firstMouse = false;
+    }
+
+    float xOffset = xPos - lastX;
+    float yOffset = lastY - yPos;
+    lastX = xPos;
+    lastY = yPos;
+
+    const float sensitivity = 0.1f;
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
+   
+    yaw   += xOffset;
+    pitch += yOffset;
+
+    if (pitch >  89.0f) pitch =  89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+    
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+
+};
 
 void processInput(GLFWwindow *window){
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -54,7 +95,7 @@ int main(){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Core-profile setting
-  
+ 
 
     GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "MINECRAFT KILLER (DLSS 5)", NULL, NULL);
     if (window == NULL){
@@ -70,6 +111,9 @@ int main(){
         return -1;
     }
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, cursorCallBack);
+    
     glEnable(GL_DEPTH_TEST);
     
     int nrAttributes;
@@ -166,7 +210,7 @@ int main(){
     Gen2DTexture faceTexture(tempText, 1);
     faceTexture.bindTexture();
     faceTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    faceTexture.texData("../resources/textures/powerCat.jpg", GL_RGB);
+    faceTexture.texData("../resources/textures/pixelArtEye.png", GL_RGBA);
 
     unsigned int floorTex;
     Gen2DTexture floorTexture(floorTex, 1);
@@ -227,10 +271,6 @@ int main(){
 
     floorShader.use();
     floorShader.setInt("floorTexture", 2);
-
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
-    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
     float deltaTime = 0.0f; // Time between current frame and last frame
     float lastFrame = 0.0f; // Time of last frame
