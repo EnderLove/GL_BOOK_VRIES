@@ -351,15 +351,30 @@ int main(){
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         wallShader.use();
+        for (int i = 0; i < 4; i++){
+            model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::translate(model, glm::vec3(0.0f, -2.8f, -20.0f));
+            unsigned int wallModelLoc = glGetUniformLocation(wallShader.getShaderID(), "model");
+            unsigned int wallViewLoc  = glGetUniformLocation(wallShader.getShaderID(), "view");
+            unsigned int wallProjLoc  = glGetUniformLocation(wallShader.getShaderID(), "projection");
+            glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(wallProjLoc , 1, GL_FALSE, glm::value_ptr(projection));
+
+            glBindVertexArray(wallVAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        }
+        /*
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -2.8f, -20.0f));
         unsigned int wallModelLoc = glGetUniformLocation(wallShader.getShaderID(), "model");
         unsigned int wallViewLoc  = glGetUniformLocation(wallShader.getShaderID(), "view");
         unsigned int wallProjLoc  = glGetUniformLocation(wallShader.getShaderID(), "projection");
         glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(wallProjLoc , 1, GL_FALSE, glm::value_ptr(projection));
-
+        */
         glBindVertexArray(wallVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

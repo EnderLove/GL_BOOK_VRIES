@@ -12,7 +12,7 @@ out vec4 vertexColor;
 
 void main(){
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
-    vertexColor = (0.8, 0.2, 0.2, 1.0);
+    vertexColor = vec4(0.4, 0.2, 0.2, 1.0);
     texCoord = aTexture;
 }
 
