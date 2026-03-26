@@ -7,14 +7,12 @@
 #include "stb_image.h"
 
 class Gen2DTexture{
-    private:
-        unsigned int *ID; // Texture ID
     public:
-        Gen2DTexture(unsigned int &name, unsigned int n); 
-       
-        void bindTexture(); // Binds the texture
-        void texParamter(int wrapS, int wrapT, int minFilter, int magFilter) const; // Sets parameters for the texture
-        void texData(char const *path, int sourceColorType);                        // Sets the data to load the texture
+        unsigned int ID; // Texture ID
+        Gen2DTexture() : ID(0){}
+    
+        void loadTexture(char const *path, int sourceColorType, int wrapS, int wrapT, int minFilter, int magFilter); // Sets parameters for the texture
+        void bindTexture(unsigned int unit);
 };
 
 #endif // LOAD_2D_TEXTURE_H!

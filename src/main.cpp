@@ -8,11 +8,10 @@
 #include <stdio.h>
 #include <math.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
 #include "shader.h"
 
 #include "load2DTexture.h"
+#include "gameTextures.cpp"
 
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
@@ -28,7 +27,7 @@ double yaw = -90.0f;
 double pitch = 0.0f;
 float lastX = (float)SCR_WIDTH  / 2;
 float lastY = (float)SCR_HEIGHT / 2;
-bool firstMouse = true;
+bool firstMouse = false;
 
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
@@ -36,7 +35,6 @@ void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
 }
 
 void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
-
     if (firstMouse){
         lastX = xPos;
         lastY = yPos;
@@ -72,7 +70,7 @@ void processInput(GLFWwindow *window){
 }
 
 void processCameraInput(GLFWwindow *window, glm::vec3 &cPos, glm::vec3 &cUp, glm::vec3 &cFront, float deltaTime){
-    const float cameraSpeed = deltaTime * 3.0f;
+    const float cameraSpeed = deltaTime * 5.0f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) { cPos += cameraSpeed * cFront; }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) { cPos -= cameraSpeed * cFront; }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) { cPos -= glm::normalize(glm::cross(cFront, cUp)) * cameraSpeed; }
@@ -180,13 +178,25 @@ int main(){
     };
 
     float floorVertices[] = {
-        -0.5f, 0.0f, -0.5f, 0.0f, 4.0f,
-         0.5f, 0.0f, -0.5f, 4.0f, 4.0f,
-         0.5f, 0.0f,  0.5f, 4.0f, 0.0f,
-        -0.5f, 0.0f,  0.5f, 0.0f, 0.0f,
+        -20.0f, 0.0f, -20.0f, 0.0f, 4.0f,
+         20.0f, 0.0f, -20.0f, 4.0f, 4.0f,
+         20.0f, 0.0f,  20.0f, 4.0f, 0.0f,
+        -20.0f, 0.0f,  20.0f, 0.0f, 0.0f
+    };
+
+    float wallVertices[] = {
+        -20.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -20.0f, 5.0f, 0.0f, 0.0f, 10.0f,
+         20.0f, 5.0f, 0.0f, 40.0f, 10.0f,
+         20.0f, 0.0f, 0.0f, 40.0f, 0.0f
     };
 
     unsigned int floorIndices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    unsigned int wallIndices[] = {
         0, 1, 2,
         0, 2, 3
     };
@@ -198,27 +208,8 @@ int main(){
     };
 
     stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
-   
-    // TEXTURE CREATION ///////////////////////////////////////////////////////////////////////////////////////////
-    unsigned int containerTex;
-    Gen2DTexture containerTexture(containerTex, 1);
-    containerTexture.bindTexture();
-    containerTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    containerTexture.texData("../resources/textures/container.jpg", GL_RGB);
-
-    unsigned int tempText;
-    Gen2DTexture faceTexture(tempText, 1);
-    faceTexture.bindTexture();
-    faceTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    faceTexture.texData("../resources/textures/pixelArtEye.png", GL_RGBA);
-
-    unsigned int floorTex;
-    Gen2DTexture floorTexture(floorTex, 1);
-    floorTexture.bindTexture();
-    floorTexture.texParamter(GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
-    floorTexture.texData("../resources/textures/wall.jpg", GL_RGB);
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    LoadTextures textures; 
+    textures.loadAll();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     // FIRST WE CREATE THE VERTEX ARRAY OBJECT THAT WILL STORE ALL THE SETTINGS
@@ -258,11 +249,27 @@ int main(){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), floorIndices, GL_STATIC_DRAW);
 
+    unsigned int wallVAO, wallVBO, wallEBO;
+    glGenVertexArrays(1, &wallVAO);
+    glBindVertexArray(wallVAO);
+    glGenBuffers(1, &wallVBO);
+    glGenBuffers(1, &wallEBO);
+    glBindBuffer(GL_ARRAY_BUFFER, wallVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(wallVertices), wallVertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wallEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(wallIndices), wallIndices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    
 
     Shader floorShader  ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
     Shader textureShader("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
+    Shader wallShader   ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
 
-    float r = 0.5f; float g = 0.4f; float b = 0.7f;
+    //float r = 0.5f; float g = 0.4f; float b = 0.7f;
+    float r = 0.0f; float g = 0.0f; float b = 0.0f;
     float alphaBlendVal = 0;
 
     textureShader.use();
@@ -271,6 +278,9 @@ int main(){
 
     floorShader.use();
     floorShader.setInt("floorTexture", 2);
+
+    wallShader.use();
+    wallShader.setInt("wallTexture", 3);
 
     float deltaTime = 0.0f; // Time between current frame and last frame
     float lastFrame = 0.0f; // Time of last frame
@@ -282,20 +292,16 @@ int main(){
         processAlphaBlend(window, &alphaBlendVal);
        
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
-        glClear(GL_COLOR_BUFFER_BIT); 
-        glClear(GL_DEPTH_BUFFER_BIT); 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        glActiveTexture(GL_TEXTURE0);
-        containerTexture.bindTexture();
-        glActiveTexture(GL_TEXTURE1);
-        faceTexture.bindTexture();
-        glActiveTexture(GL_TEXTURE2);
-        floorTexture.bindTexture();
+        textures.woodBoxContainer.bindTexture(0);
+        textures.pixelRedEye.bindTexture(1);
+        textures.floor.bindTexture(2);
+        textures.metal.bindTexture(3);
 
 
         textureShader.use();
@@ -306,14 +312,7 @@ int main(){
         glm::mat4 view       = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
-        model      = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
-        //view       = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-       
-
-        //const float radius = 8.0f;
-        //float camX = sin(glfwGetTime() / 3) * radius;
-        //float camZ = cos(glfwGetTime() / 3) * radius;
-        //view = glm::lookAt(glm::vec3(camX, 3.0f, camZ), glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
+        model = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); 
 
         projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -339,11 +338,7 @@ int main(){
  
         floorShader.use();
         model = glm::mat4(1.0f);
-        //view  = glm::mat4(1.0f);
-        //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::translate(model, glm::vec3(0.0f, -2.8f, 0.0f));
-        model = glm::scale (model, glm::vec3(20.0f, 0.0f, 20.0f));
-        //view  = glm::translate(view, glm::vec3(0.0f, -1.0f, -3.0f));
        
         unsigned int floorModelLoc = glGetUniformLocation(floorShader.getShaderID(), "model");
         unsigned int floorViewLoc  = glGetUniformLocation(floorShader.getShaderID(), "view");
@@ -355,10 +350,22 @@ int main(){
         glBindVertexArray(floorVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+        wallShader.use();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -20.0f));
+        unsigned int wallModelLoc = glGetUniformLocation(wallShader.getShaderID(), "model");
+        unsigned int wallViewLoc  = glGetUniformLocation(wallShader.getShaderID(), "view");
+        unsigned int wallProjLoc  = glGetUniformLocation(wallShader.getShaderID(), "projection");
+        glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(wallProjLoc , 1, GL_FALSE, glm::value_ptr(projection));
+
+        glBindVertexArray(wallVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
     glfwTerminate();
     return 0;
 }
-//glDrawArrays(GL_TRIANGLES, 0, 3);
