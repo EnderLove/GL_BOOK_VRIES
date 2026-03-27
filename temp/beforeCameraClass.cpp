@@ -20,14 +20,18 @@ const int SCR_SOURCE_HEIGHT = 1080;
 const int SCR_WIDTH  = 16 * 80;
 const int SCR_HEIGHT =  9 * 90;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
 
+float fov = 45.0f;
+float zoom = 45.0f;
+
+double yaw = -90.0f;
+double pitch = 0.0f;
 float lastX = (float)SCR_WIDTH  / 2;
 float lastY = (float)SCR_HEIGHT / 2;
 bool firstMouse = false;
-
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
 
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
@@ -45,12 +49,28 @@ void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
     float yOffset = lastY - yPos;
     lastX = xPos;
     lastY = yPos;
+
+    const float sensitivity = 0.1f;
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
+   
+    yaw   += xOffset;
+    pitch += yOffset;
+
+    if (pitch >  89.0f) pitch =  89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
     
-    camera.ProcessMouseMovement(xOffset, yOffset);
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
 };
 
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset){
-    camera.ProcessMouseScroll(yOffset);
+    fov -= (float)yOffset;
+    if (fov <=  1.0f) fov =  1.0f;
+    if (fov >= 45.0f) fov = 45.0f;
 }
 
 void processInput(GLFWwindow *window){
@@ -58,11 +78,12 @@ void processInput(GLFWwindow *window){
         glfwSetWindowShouldClose(window, true);
 }
 
-void processCameraInput(GLFWwindow *window){
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) { camera.ProcessKeyboard(FORWARD , deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) { camera.ProcessKeyboard(BACKWARD, deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) { camera.ProcessKeyboard(LEFT    , deltaTime); }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) { camera.ProcessKeyboard(RIGHT   , deltaTime); }
+void processCameraInput(GLFWwindow *window, glm::vec3 &cPos, glm::vec3 &cUp, glm::vec3 &cFront, float deltaTime){
+    const float cameraSpeed = deltaTime * 5.0f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) { cPos += cameraSpeed * cFront; }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) { cPos -= cameraSpeed * cFront; }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) { cPos -= glm::normalize(glm::cross(cFront, cUp)) * cameraSpeed; }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) { cPos += glm::normalize(glm::cross(cFront, cUp)) * cameraSpeed; }
 }
 
 // TODO: ADD CONTROLLER HEADER FILE || INPUT HEADER FILE
@@ -92,8 +113,9 @@ void processCameraInputController(GLFWwindow *window, glm::vec3 &cPos, glm::vec3
     const float sensitivity = 0.1f;
     xOffset *= sensitivity;
     yOffset *= sensitivity;
-  /* 
+   
     yaw   += xOffset;
+    pitch += yOffset;
 
     if (pitch >  89.0f) pitch =  89.0f;
     if (pitch < -89.0f) pitch = -89.0f;
@@ -103,7 +125,6 @@ void processCameraInputController(GLFWwindow *window, glm::vec3 &cPos, glm::vec3
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(direction);
-    */
 }
 
 void processColorScreen(GLFWwindow *window, float *r, float *g, float *b){
@@ -147,7 +168,7 @@ int main(){
     }
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, cursorCallBack);
+    //glfwSetCursorPosCallback(window, cursorCallBack);
     glfwSetScrollCallback(window, scrollCallback);
 
     glEnable(GL_DEPTH_TEST);
@@ -320,11 +341,14 @@ int main(){
     wallShader.use();
     wallShader.setInt("wallTexture", 3);
 
+    float deltaTime = 0.0f; // Time between current frame and last frame
+    float lastFrame = 0.0f; // Time of last frame
+
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window, &r, &g, &b);
-        processCameraInput(window); 
-        //processCameraInputController(window, cameraPos, cameraUp, cameraFront, deltaTime);
+        processCameraInput(window, cameraPos, cameraUp, cameraFront, deltaTime);
+        processCameraInputController(window, cameraPos, cameraUp, cameraFront, deltaTime);
         processAlphaBlend(window, &alphaBlendVal);
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
@@ -349,9 +373,9 @@ int main(){
         glm::mat4 projection = glm::mat4(1.0f);
 
         model = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
-        view = camera.GetViewMatrix(); 
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp); 
 
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
         unsigned int modelLoc = glGetUniformLocation(textureShader.getShaderID(), "model");
         unsigned int viewLoc  = glGetUniformLocation(textureShader.getShaderID(), "view");

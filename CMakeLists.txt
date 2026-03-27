@@ -16,6 +16,7 @@ add_executable(test
     src/shader.cpp
     src/load2DTexture.cpp
     src/gameTextures.cpp
+    src/camera.cpp
     src/glad.c
 )
 
