@@ -1,5 +1,4 @@
 #include "camera.h"
-
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
     Position = position;
@@ -33,6 +32,38 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         Position -= Right * velocity;
     if (direction == RIGHT)
         Position += Right * velocity;
+}
+
+void Camera::processController(const float *axes, float deltaTime, float xOffset, float yOffset){
+    //TODO: ADD ANSI SCAPE CODES TO SHOW CONSTANT OUTPUT IN TERMINAL 
+    //printf("LEFT  STICK X AXIS %f\n", axes[0]);
+    //printf("LEFT  STICK Y AXIS %f\n", axes[1]);
+    //printf("RIGHT STICK X AXIS %f\n", axes[2]);
+    //printf("RIGHT STICK Y AXIS %f\n", axes[4]);
+
+    const float cameraSpeed = deltaTime * 5.0f;
+
+    // CAMERA MOVEMENT 
+    //
+    if (!(axes[1] < 0.5f && axes[1] > -0.5f)){
+        if (axes[1] > 0.5f) Position -= (cameraSpeed * axes[1]) * Front; 
+        if (axes[1] < 0.5f) Position += (cameraSpeed * abs(axes[1])) * Front; 
+    }
+    if (!(axes[0] < 0.5f && axes[0] > -0.5f)){
+        if (axes[0] > 0.5f) Position += glm::normalize(glm::cross(Front, Up)) * (cameraSpeed * axes[0]); 
+        if (axes[0] < 0.5f) Position -= glm::normalize(glm::cross(Front, Up)) * (cameraSpeed * abs(axes[0])); 
+    } 
+
+    // CAMERA VIEW MOVEMENT
+    xOffset *= SENSITIVITY;
+    yOffset *= SENSITIVITY;
+    Yaw   += xOffset;
+    Pitch += yOffset;
+
+    if (Pitch >  89.0f) Pitch =  89.0f;
+    if (Pitch < -89.0f) Pitch = -89.0f;
+    
+    updateCameraVectors();
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

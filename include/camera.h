@@ -2,8 +2,12 @@
 #define CAMERA_H
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <math.h>
+#include <stdio.h>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -58,6 +62,8 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
     
+    void processController(const float *axes, float deltaTime, float xOffset, float yOffset);
+
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();

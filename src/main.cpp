@@ -29,6 +29,9 @@ bool firstMouse = false;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+//float r = 0.5f; float g = 0.4f; float b = 0.7f;
+float r = 0.0f; float g = 0.0f; float b = 0.0f; // BACKGROUND COLOR
+
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
     printf("RESIZE: %4d | %4d\n", width, height);
@@ -65,51 +68,32 @@ void processCameraInput(GLFWwindow *window){
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) { camera.ProcessKeyboard(RIGHT   , deltaTime); }
 }
 
-// TODO: ADD CONTROLLER HEADER FILE || INPUT HEADER FILE
-void processCameraInputController(GLFWwindow *window, glm::vec3 &cPos, glm::vec3 &cUp, glm::vec3 &cFront, float deltaTime){
-
+void processCameraInputController(){
     int axesCount;
     const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
     
-    printf("LEFT STICK X AXIS %f\n", axes[0]);
-    printf("LEFT STICK Y AXIS %f\n", axes[1]);
-    printf("RIGHT STICK X AXIS %f\n", axes[2]);
-    printf("RIGHT STICK Y AXIS %f\n", axes[4]);
+    float xOffset = 0;
+    float yOffset = 0;
 
-    const float cameraSpeed = deltaTime * 5.0f;
-    
-    if (axes[1] > 0.5f) cPos -= (cameraSpeed * axes[1]) * cFront; 
-    if (axes[1] < 0.5f) cPos += (cameraSpeed * abs(axes[1])) * cFront; 
-    if (axes[0] > 0.5f) cPos += glm::normalize(glm::cross(cFront, cUp)) * (cameraSpeed * axes[0]); 
-    if (axes[0] < 0.5f) cPos -= glm::normalize(glm::cross(cFront, cUp)) * (cameraSpeed * abs(axes[0])); 
-
-
-    float xOffset = -axes[3] - lastX;
-    float yOffset = lastY - (-axes[4]);
+    if (!(axes[3] < 0.5f && axes[3] > -0.5f)) xOffset = -axes[3] - lastX;
+    if (!(axes[4] < 0.5f && axes[4] > -0.5f)) yOffset = lastY - (-axes[4]);
     lastX = -axes[3] * 10;
     lastY = -axes[4] * 10;
-
-    const float sensitivity = 0.1f;
-    xOffset *= sensitivity;
-    yOffset *= sensitivity;
-  /* 
-    yaw   += xOffset;
-
-    if (pitch >  89.0f) pitch =  89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
     
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(direction);
-    */
+    camera.processController(axes, deltaTime, xOffset, yOffset);
 }
 
-void processColorScreen(GLFWwindow *window, float *r, float *g, float *b){
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) { *r += 0.01f; if (*r > 1) *r = 0; }
-    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) { *g += 0.01f; if (*g > 1) *g = 0; }
-    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) { *b += 0.01f; if (*b > 1) *b = 0; }
+void processColorScreen(GLFWwindow *window){
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) { r += 0.01f; if (r > 1) r = 0; }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) { g += 0.01f; if (g > 1) g = 0; }
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) { b += 0.01f; if (b > 1) b = 0; }
+
+    int buttonCount;
+    const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+   
+    if (buttons[0] == GLFW_PRESS) { g += 0.01f; if (g > 1) g = 0; } // A
+    if (buttons[1] == GLFW_PRESS) { b += 0.01f; if (b > 1) b = 0; } // B
+    if (buttons[2] == GLFW_PRESS) { r += 0.01f; if (r > 1) r = 0; } // X
 }
 
 void processAlphaBlend(GLFWwindow *window, float *alphaBlendVal){
@@ -306,8 +290,6 @@ int main(){
     Shader textureShader("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
     Shader wallShader   ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
 
-    //float r = 0.5f; float g = 0.4f; float b = 0.7f;
-    float r = 0.0f; float g = 0.0f; float b = 0.0f;
     float alphaBlendVal = 0;
 
     textureShader.use();
@@ -322,9 +304,9 @@ int main(){
 
     while (!glfwWindowShouldClose(window)){
         processInput(window);
-        processColorScreen(window, &r, &g, &b);
+        processColorScreen(window);
         processCameraInput(window); 
-        //processCameraInputController(window, cameraPos, cameraUp, cameraFront, deltaTime);
+        processCameraInputController();
         processAlphaBlend(window, &alphaBlendVal);
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
