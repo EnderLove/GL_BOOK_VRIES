@@ -52,6 +52,21 @@ void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
     camera.ProcessMouseMovement(xOffset, yOffset);
 };
 
+const float *controllerAxes;
+const unsigned char *controllerButtons;
+bool CONTROLLER_CONNECTED = false;
+
+void loadControllerGamePad(){
+    if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GLFW_TRUE){
+        int axesCount;
+        int buttonCount;
+        controllerAxes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+        controllerButtons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+        CONTROLLER_CONNECTED = true;
+        printf("CONTROLLER_CONNECTED==================\n");
+    }
+}
+
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset){
     camera.ProcessMouseScroll(yOffset);
 }
@@ -69,18 +84,15 @@ void processCameraInput(GLFWwindow *window){
 }
 
 void processCameraInputController(){
-    int axesCount;
-    const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-    
     float xOffset = 0;
     float yOffset = 0;
 
-    if (!(axes[3] < 0.5f && axes[3] > -0.5f)) xOffset = -axes[3] - lastX;
-    if (!(axes[4] < 0.5f && axes[4] > -0.5f)) yOffset = lastY - (-axes[4]);
-    lastX = -axes[3] * 10;
-    lastY = -axes[4] * 10;
+    if (!(controllerAxes[3] < 0.5f && controllerAxes[3] > -0.5f)) xOffset = -controllerAxes[3] - lastX;
+    if (!(controllerAxes[4] < 0.5f && controllerAxes[4] > -0.5f)) yOffset = lastY - (-controllerAxes[4]);
+    lastX = -controllerAxes[3] * 10;
+    lastY = -controllerAxes[4] * 10;
     
-    camera.processController(axes, deltaTime, xOffset, yOffset);
+    camera.processController(controllerAxes, deltaTime, xOffset, yOffset);
 }
 
 void processColorScreen(GLFWwindow *window){
@@ -88,12 +100,11 @@ void processColorScreen(GLFWwindow *window){
     if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) { g += 0.01f; if (g > 1) g = 0; }
     if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) { b += 0.01f; if (b > 1) b = 0; }
 
-    int buttonCount;
-    const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-   
-    if (buttons[0] == GLFW_PRESS) { g += 0.01f; if (g > 1) g = 0; } // A
-    if (buttons[1] == GLFW_PRESS) { b += 0.01f; if (b > 1) b = 0; } // B
-    if (buttons[2] == GLFW_PRESS) { r += 0.01f; if (r > 1) r = 0; } // X
+    if(glfwJoystickPresent(GLFW_JOYSTICK_1)){
+        if (controllerButtons[0] == GLFW_PRESS) { g += 0.01f; if (g > 1) g = 0; } // A
+        if (controllerButtons[1] == GLFW_PRESS) { b += 0.01f; if (b > 1) b = 0; } // B
+        if (controllerButtons[2] == GLFW_PRESS) { r += 0.01f; if (r > 1) r = 0; } // X
+    } 
 }
 
 void processAlphaBlend(GLFWwindow *window, float *alphaBlendVal){
@@ -133,6 +144,7 @@ int main(){
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, cursorCallBack);
     glfwSetScrollCallback(window, scrollCallback);
+    loadControllerGamePad();
 
     glEnable(GL_DEPTH_TEST);
     
@@ -306,11 +318,14 @@ int main(){
         processInput(window);
         processColorScreen(window);
         processCameraInput(window); 
-        processCameraInputController();
         processAlphaBlend(window, &alphaBlendVal);
+        
+        if (CONTROLLER_CONNECTED) processCameraInputController();
+        if (CONTROLLER_CONNECTED) camera.triggerAimViewFov(controllerAxes);
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
+        //glClear(GL_COLOR_BUFFER_BIT); // State-using function 
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -333,7 +348,7 @@ int main(){
         model = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
         view = camera.GetViewMatrix(); 
 
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
         unsigned int modelLoc = glGetUniformLocation(textureShader.getShaderID(), "model");
         unsigned int viewLoc  = glGetUniformLocation(textureShader.getShaderID(), "view");
