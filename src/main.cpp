@@ -12,29 +12,33 @@
 #include "shader.h"
 
 #include "load2DTexture.h"
+#include "models.h"
 #include "gameTextures.cpp"
 
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
-
 const int SCR_WIDTH  = 16 * 80;
 const int SCR_HEIGHT =  9 * 90;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // Initialization of the camera with a pos
 
 float lastX = (float)SCR_WIDTH  / 2;
 float lastY = (float)SCR_HEIGHT / 2;
 bool firstMouse = false;
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+float deltaTime = 0.0f; // Diference of time between frames
+float lastFrame = 0.0f; // Time of the last frame
 
-//float r = 0.5f; float g = 0.4f; float b = 0.7f;
 float r = 0.0f; float g = 0.0f; float b = 0.0f; // BACKGROUND COLOR
 
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
     printf("RESIZE: %4d | %4d\n", width, height);
+}
+
+void processInput(GLFWwindow *window){
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
@@ -52,6 +56,10 @@ void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
     camera.ProcessMouseMovement(xOffset, yOffset);
 };
 
+void scrollCallback(GLFWwindow *window, double xOffset, double yOffset){
+    camera.ProcessMouseScroll(yOffset);
+}
+
 const float *controllerAxes;
 const unsigned char *controllerButtons;
 bool CONTROLLER_CONNECTED = false;
@@ -65,15 +73,6 @@ void loadControllerGamePad(){
         CONTROLLER_CONNECTED = true;
         printf("CONTROLLER_CONNECTED==================\n");
     }
-}
-
-void scrollCallback(GLFWwindow *window, double xOffset, double yOffset){
-    camera.ProcessMouseScroll(yOffset);
-}
-
-void processInput(GLFWwindow *window){
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
 }
 
 void processCameraInput(GLFWwindow *window){
@@ -117,7 +116,6 @@ int main(){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Core-profile setting
- 
 
     GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "MINECRAFT KILLER (DLSS 5)", NULL, NULL);
     if (window == NULL){
@@ -125,7 +123,6 @@ int main(){
         glfwTerminate();
         return -1;
     }
-    //glfwSetWindowPos(window, SCR_SOURCE_WIDTH / 4, SCR_SOURCE_HEIGHT / 4); // TODO : Set the window at the center 
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
@@ -133,9 +130,8 @@ int main(){
         return -1;
     }
  
-    int presentController = glfwJoystickPresent(GLFW_JOYSTICK_1); // CHECK FOR GAME_CONTROLLER
-    printf("JOYSTICK/GAMEPAD 1 STATUS: %s\n", (presentController == GL_TRUE)? "CONNECTED" : "DISCONECTED");
-    if ( presentController == GL_TRUE){
+    printf("JOYSTICK/GAMEPAD 1 STATUS: %s\n", (CONTROLLER_CONNECTED == GL_TRUE)? "CONNECTED" : "DISCONECTED");
+    if (CONTROLLER_CONNECTED == GL_TRUE){
         int axesCount;
         const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
         printf("NUMBER OF AXES AVAILABLE: %d\n", axesCount);
@@ -153,93 +149,6 @@ int main(){
     printf("Maximun number of vertex attributes supported: %d\n", nrAttributes);
    
     glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
-  
-    float cubeVertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-
-    glm::vec3 cubePosition[] = {
-        glm::vec3( 0.0f,  0.0f,   0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f,  -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f,  -3.5f),
-        glm::vec3(-1.7f,  3.0f,  -7.5f),
-        glm::vec3( 1.3f, -2.0f,  -2.5f),
-        glm::vec3( 1.5f,  2.0f,  -2.5f),
-        glm::vec3( 1.5f,  0.2f,  -1.5f),
-        glm::vec3(-1.3f,  1.0f,  -1.5f)
-    };
-
-    float floorVertices[] = {
-        -20.0f, 0.0f, -20.0f, 0.0f, 4.0f,
-         20.0f, 0.0f, -20.0f, 4.0f, 4.0f,
-         20.0f, 0.0f,  20.0f, 4.0f, 0.0f,
-        -20.0f, 0.0f,  20.0f, 0.0f, 0.0f
-    };
-
-    float wallVertices[] = {
-        -20.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -20.0f, 5.0f, 0.0f, 0.0f, 10.0f,
-         20.0f, 5.0f, 0.0f, 40.0f, 10.0f,
-         20.0f, 0.0f, 0.0f, 40.0f, 0.0f
-    };
-
-    unsigned int floorIndices[] = {
-        0, 1, 2,
-        0, 2, 3
-    };
-
-    unsigned int wallIndices[] = {
-        0, 1, 2,
-        0, 2, 3
-    };
-
-    float texCoords[] = {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        0.5f, 1.0f
-    };
 
     stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
     LoadTextures textures; 
@@ -267,6 +176,18 @@ int main(){
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
     }
 
+    // LIGHT VERTEX DATA LOADING
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    glBindBuffer(1, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+
+    // FLOOR VERTEX DATA LOADING
     unsigned int floorVAO, floorVBO, floorEBO;
     glGenVertexArrays(1, &floorVAO);
     glGenBuffers(1, &floorVBO);
@@ -283,6 +204,7 @@ int main(){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), floorIndices, GL_STATIC_DRAW);
 
+    // WALL VERTES DATA LOADING
     unsigned int wallVAO, wallVBO, wallEBO;
     glGenVertexArrays(1, &wallVAO);
     glBindVertexArray(wallVAO);
@@ -296,23 +218,21 @@ int main(){
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    
 
-    Shader floorShader  ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
-    Shader textureShader("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
-    Shader wallShader   ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
+    // SHADER LOADING 
+    Shader floorShader ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
+    Shader cubeShader  ("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
+    Shader wallShader  ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
 
-    float alphaBlendVal = 0;
-
-    textureShader.use();
-    textureShader.setInt("texture1", 0);
-    textureShader.setInt("texture2", 1);
-
+    cubeShader.use();
+    cubeShader.setInt("texture1", 0);
+    cubeShader.setInt("texture2", 1);
     floorShader.use();
     floorShader.setInt("floorTexture", 2);
-
     wallShader.use();
     wallShader.setInt("wallTexture", 3);
+
+    float alphaBlendVal = 0;
 
     while (!glfwWindowShouldClose(window)){
         processInput(window);
@@ -325,75 +245,73 @@ int main(){
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
-        //glClear(GL_COLOR_BUFFER_BIT); // State-using function 
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
-        textures.woodBoxContainer.bindTexture(0);
-        textures.pixelRedEye.bindTexture(1);
+        
+        // TEXTURE BINDING 
+        textures.woodBoxContainer.bindTexture(1);
+        textures.pixelRedEye.bindTexture(0);
         textures.floor.bindTexture(2);
         textures.metal.bindTexture(3);
 
-
-        textureShader.use();
-        int alphaBlendFragLocation = glGetUniformLocation(textureShader.getShaderID(), "alphaBlend");
+        // GLOBAL VIEW & PROJECTION 
+        glm::mat4 globalView       = glm::mat4(1.0f);
+        glm::mat4 globalProjection = glm::mat4(1.0f);
+        globalView = camera.GetViewMatrix(); 
+        globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+       
+        // CUBES ROTATING
+        cubeShader.use();
+        int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
         glUniform1f(alphaBlendFragLocation, alphaBlendVal);
 
-        glm::mat4 model      = glm::mat4(1.0f);
-        glm::mat4 view       = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-
-        model = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
-        view = camera.GetViewMatrix(); 
-
-        projection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        
-        unsigned int modelLoc = glGetUniformLocation(textureShader.getShaderID(), "model");
-        unsigned int viewLoc  = glGetUniformLocation(textureShader.getShaderID(), "view");
-        unsigned int projLoc  = glGetUniformLocation(textureShader.getShaderID(), "projection");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(projection));
+        glm::mat4 cubeModel = glm::mat4(1.0f);
+        unsigned int modelLoc = glGetUniformLocation(cubeShader.getShaderID(), "model");
+        unsigned int viewLoc  = glGetUniformLocation(cubeShader.getShaderID(), "view");
+        unsigned int projLoc  = glGetUniformLocation(cubeShader.getShaderID(), "projection");
+        glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
         glBindVertexArray(VAO[0]);
-
         for (unsigned int i = 0; i < 10; i++){
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePosition[i]);
-            model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
+            cubeModel = glm::mat4(1.0f);
+            cubeModel = glm::translate(cubeModel, cubePosition[i]);
+            cubeModel = glm::scale(cubeModel, glm::vec3(0.7f, 0.7f, 0.7f));
             float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            cubeModel = glm::rotate(cubeModel, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cubeModel));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
- 
+
+        // SCENARIO FLOOR
         floorShader.use();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -2.8f, 0.0f));
+        glm::mat4 floorModel= glm::mat4(1.0f);
+        floorModel= glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
        
         unsigned int floorModelLoc = glGetUniformLocation(floorShader.getShaderID(), "model");
         unsigned int floorViewLoc  = glGetUniformLocation(floorShader.getShaderID(), "view");
         unsigned int floorProjLoc  = glGetUniformLocation(floorShader.getShaderID(), "projection");
-        glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
+        glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
         
         glBindVertexArray(floorVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+        // SCENARIO WALLS
         wallShader.use();
         for (int i = 0; i < 4; i++){
-            model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::translate(model, glm::vec3(0.0f, -2.8f, -20.0f));
+            glm::mat4 wallModel= glm::mat4(1.0f);
+            wallModel= glm::rotate(wallModel, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            wallModel= glm::translate(wallModel, glm::vec3(0.0f, -2.8f, -20.0f));
             unsigned int wallModelLoc = glGetUniformLocation(wallShader.getShaderID(), "model");
             unsigned int wallViewLoc  = glGetUniformLocation(wallShader.getShaderID(), "view");
             unsigned int wallProjLoc  = glGetUniformLocation(wallShader.getShaderID(), "projection");
-            glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-            glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(wallProjLoc , 1, GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(wallModel));
+            glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+            glUniformMatrix4fv(wallProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
 
             glBindVertexArray(wallVAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

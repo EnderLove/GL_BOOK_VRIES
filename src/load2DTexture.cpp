@@ -1,6 +1,6 @@
 #include "load2DTexture.h"
 
-void Gen2DTexture::loadTexture(char const *path, int sourceColorType, int wrapS, int wrapT, int minFilter, int magFilter){
+void Gen2DTexture::loadTexture(char const *path, int sourceColorFormat, int wrapS, int wrapT, int minFilter, int magFilter){
     glGenTextures(1, &ID);
     glBindTexture(GL_TEXTURE_2D, ID);
 
@@ -12,7 +12,7 @@ void Gen2DTexture::loadTexture(char const *path, int sourceColorType, int wrapS,
     int width, height, nrChannels;
     unsigned char *texBoxData = stbi_load(path, &width, &height, &nrChannels, 0);
     if (texBoxData){
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, sourceColorType, GL_UNSIGNED_BYTE, texBoxData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, sourceColorFormat, GL_UNSIGNED_BYTE, texBoxData);
         glGenerateMipmap(GL_TEXTURE_2D);
         printf("TEXTURE LOADED: %s\n", path);
     } else {

@@ -11,7 +11,7 @@ class Gen2DTexture{
         unsigned int ID; // Texture ID
         Gen2DTexture() : ID(0){}
     
-        void loadTexture(char const *path, int sourceColorType, int wrapS, int wrapT, int minFilter, int magFilter); // Sets parameters for the texture
+        void loadTexture(char const *path, int sourceColorFormat, int wrapS, int wrapT, int minFilter, int magFilter); // Sets parameters for the texture
         void bindTexture(unsigned int unit);
 };
 
