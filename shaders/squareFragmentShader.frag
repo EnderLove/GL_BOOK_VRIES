@@ -3,16 +3,30 @@ out vec4 FragColor;
 
 //in vec3 ourColor;
 in vec2 texCoord;
+in vec3 fragPos;
+in vec3 normal;
+
+uniform vec3 objectColor;
+uniform vec3 lightColor;
+uniform vec3 lightPos;
 
 uniform sampler2D texture1; // Here we pass the texture
 uniform sampler2D texture2;
 uniform float alphaBlend;
 
 void main(){
-    //FragColor = texture(ourTexture, texCoord) * vec4(ourColor, 1.0);
-    //FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2) * vec4(ourColor, 1.0);
-    //FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord * vec2(-1.0, 1.0)), 0.2);
-    FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), alphaBlend);
+    float ambientStrength = 0.1;
+
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - fragPos);
+
+    float diff = max(dot(lightDir, norm), 0.0);
+    vec3 diffuse = diff * lightColor;
+
+    vec3 ambient = ambientStrength * lightColor;
+    vec3 result = (ambient + diffuse) * objectColor;
+
+    FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), alphaBlend) * vec4(result, 1.0);
 }
 
 

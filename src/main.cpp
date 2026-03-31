@@ -161,22 +161,20 @@ int main(){
     glGenBuffers(2, EBO);
     glGenBuffers(2, VBO);
 
-    for (int i = 0; i < 2; i++){
-        glBindVertexArray(VAO[i]);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_DYNAMIC_DRAW);
+    glBindVertexArray(VAO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_DYNAMIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[i]);
-        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
-    }
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[i]);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
 
     // LIGHT VERTEX DATA LOADING
     unsigned int lightVAO;
@@ -187,7 +185,6 @@ int main(){
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
 
     // FLOOR VERTEX DATA LOADING
     unsigned int floorVAO, floorVBO, floorEBO;
@@ -236,9 +233,9 @@ int main(){
     wallShader.use();
     wallShader.setInt("wallTexture", 3);
 
-    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f,2.0f);
-    lightShader.use();
-    lightShader.setVec3("lightPos", lightPos);
+    glm::vec3 lightPos = glm::vec3(0.0f, 35.0f, 0.0f);
+    cubeShader.use();
+    cubeShader.setVec3("lightPos", lightPos);
 
     float alphaBlendVal = 0;
     
@@ -282,17 +279,16 @@ int main(){
         */
 
         // CUBES ROTATING
-        //cubeShader.use();
-        //int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
-        //glUniform1f(alphaBlendFragLocation, alphaBlendVal);
-        lightShader.use();
-        lightShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.3f));
-        lightShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
+        cubeShader.use();
+        int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
+        glUniform1f(alphaBlendFragLocation, alphaBlendVal);
+        cubeShader.setVec3("objectColor", glm::vec3(3.0f, 0.5f, 3.0f));
+        cubeShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
-        unsigned int modelLoc = glGetUniformLocation(lightShader.getShaderID(), "model");
-        unsigned int viewLoc  = glGetUniformLocation(lightShader.getShaderID(), "view");
-        unsigned int projLoc  = glGetUniformLocation(lightShader.getShaderID(), "projection");
+        unsigned int modelLoc = glGetUniformLocation(cubeShader.getShaderID(), "model");
+        unsigned int viewLoc  = glGetUniformLocation(cubeShader.getShaderID(), "view");
+        unsigned int projLoc  = glGetUniformLocation(cubeShader.getShaderID(), "projection");
         glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
@@ -306,6 +302,11 @@ int main(){
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cubeModel));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        
+        float lightAngle = 0.05 * deltaTime;
+        lightPos.x = (cos(lightAngle) * lightPos.x) + (sin(lightAngle) * lightPos.y);
+        lightPos.y = (-sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.y);
+        cubeShader.setVec3("lightPos", lightPos);
 
         // SCENARIO FLOOR
         floorShader.use();
@@ -339,7 +340,6 @@ int main(){
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
 
-        //lightShader.use();
         // SCENARIO LIGHT SOURCE 
         lightSrcShader.use();
         glm::mat4 lightModel = glm::mat4(1.0f);
@@ -354,7 +354,6 @@ int main(){
 
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
