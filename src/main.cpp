@@ -166,11 +166,13 @@ int main(){
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_DYNAMIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
         //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
 
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[i]);
         //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
@@ -223,6 +225,8 @@ int main(){
     Shader floorShader ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
     Shader cubeShader  ("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
     Shader wallShader  ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
+    Shader lightShader ("../shaders/lightVertexShader.vert" , "../shaders/lightFragmentShader.frag");
+    Shader lightSrcShader("../shaders/lightSourceVertexShader.vert", "../shaders/lightSourceFragmentShader.frag");
 
     cubeShader.use();
     cubeShader.setInt("texture1", 0);
@@ -232,8 +236,12 @@ int main(){
     wallShader.use();
     wallShader.setInt("wallTexture", 3);
 
-    float alphaBlendVal = 0;
+    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f,2.0f);
+    lightShader.use();
+    lightShader.setVec3("lightPos", lightPos);
 
+    float alphaBlendVal = 0;
+    
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window);
@@ -261,16 +269,30 @@ int main(){
         glm::mat4 globalProjection = glm::mat4(1.0f);
         globalView = camera.GetViewMatrix(); 
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-       
+      
+        /*
+            shader.use()
+            CubeModel Container
+            container.setView(1, GL_FALSE, globalView);
+            container.setProj(1, GL_FALSE, globalProjection);
+            container.model = glm::mat4(1.0f);
+
+            glBindVertexArray() SHOULD THE VAO, VBO & EBO BE IN THE MODEL CLASS? TODO
+            
+        */
+
         // CUBES ROTATING
-        cubeShader.use();
-        int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
-        glUniform1f(alphaBlendFragLocation, alphaBlendVal);
+        //cubeShader.use();
+        //int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
+        //glUniform1f(alphaBlendFragLocation, alphaBlendVal);
+        lightShader.use();
+        lightShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.3f));
+        lightShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
-        unsigned int modelLoc = glGetUniformLocation(cubeShader.getShaderID(), "model");
-        unsigned int viewLoc  = glGetUniformLocation(cubeShader.getShaderID(), "view");
-        unsigned int projLoc  = glGetUniformLocation(cubeShader.getShaderID(), "projection");
+        unsigned int modelLoc = glGetUniformLocation(lightShader.getShaderID(), "model");
+        unsigned int viewLoc  = glGetUniformLocation(lightShader.getShaderID(), "view");
+        unsigned int projLoc  = glGetUniformLocation(lightShader.getShaderID(), "projection");
         glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
@@ -316,7 +338,24 @@ int main(){
             glBindVertexArray(wallVAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
-        
+
+        //lightShader.use();
+        // SCENARIO LIGHT SOURCE 
+        lightSrcShader.use();
+        glm::mat4 lightModel = glm::mat4(1.0f);
+        lightModel = glm::translate(lightModel, lightPos);
+        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+        unsigned int lightModelLoc = glGetUniformLocation(lightSrcShader.getShaderID(), "model");
+        unsigned int lightViewLoc  = glGetUniformLocation(lightSrcShader.getShaderID(), "view");
+        unsigned int lightProjLoc  = glGetUniformLocation(lightSrcShader.getShaderID(), "projection");
+        glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
+        glUniformMatrix4fv(lightViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(lightProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+
+        glBindVertexArray(VAO[0]);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
