@@ -173,8 +173,8 @@ int main(){
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[i]);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_DYNAMIC_DRAW);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_DYNAMIC_DRAW);
 
     // LIGHT VERTEX DATA LOADING
     unsigned int lightVAO;
@@ -195,10 +195,12 @@ int main(){
     glBindBuffer(GL_ARRAY_BUFFER, floorVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), floorIndices, GL_STATIC_DRAW);
@@ -233,7 +235,7 @@ int main(){
     wallShader.use();
     wallShader.setInt("wallTexture", 3);
 
-    glm::vec3 lightPos = glm::vec3(0.0f, 35.0f, 0.0f);
+    glm::vec3 lightPos = glm::vec3(-35.0f, 5.0f, 0.0f);
     cubeShader.use();
     cubeShader.setVec3("lightPos", lightPos);
 
@@ -253,7 +255,6 @@ int main(){
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
         
         // TEXTURE BINDING 
         textures.woodBoxContainer.bindTexture(1);
@@ -286,9 +287,10 @@ int main(){
         cubeShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
-        unsigned int modelLoc = glGetUniformLocation(cubeShader.getShaderID(), "model");
-        unsigned int viewLoc  = glGetUniformLocation(cubeShader.getShaderID(), "view");
-        unsigned int projLoc  = glGetUniformLocation(cubeShader.getShaderID(), "projection");
+        unsigned int modelLoc    = glGetUniformLocation(cubeShader.getShaderID(), "model");
+        unsigned int modelInvLoc = glGetUniformLocation(cubeShader.getShaderID(), "modelInverse");
+        unsigned int viewLoc     = glGetUniformLocation(cubeShader.getShaderID(), "view");
+        unsigned int projLoc     = glGetUniformLocation(cubeShader.getShaderID(), "projection");
         glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
@@ -299,26 +301,39 @@ int main(){
             cubeModel = glm::scale(cubeModel, glm::vec3(0.7f, 0.7f, 0.7f));
             float angle = 20.0f * i;
             cubeModel = glm::rotate(cubeModel, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
+
+            glm::mat4 cubeModelInverse = glm::inverse(cubeModel); // NORMAL MATRIX
+            glUniformMatrix4fv(modelInvLoc, 1, GL_FALSE, glm::value_ptr(cubeModelInverse));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cubeModel));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         
         float lightAngle = 0.05 * deltaTime;
-        lightPos.x = (cos(lightAngle) * lightPos.x) + (sin(lightAngle) * lightPos.y);
-        lightPos.y = (-sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.y);
+        lightPos.x = (cos(lightAngle) * lightPos.x) + (-sin(lightAngle) * lightPos.z);
+        lightPos.z = (sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.z);
+        if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
         cubeShader.setVec3("lightPos", lightPos);
+        cubeShader.setVec3("viewPos", camera.Position);
 
         // SCENARIO FLOOR
         floorShader.use();
+        floorShader.setVec3("lightPos", lightPos);
+        floorShader.setVec3("viewPos", camera.Position);
+        floorShader.setVec3("objectColor", glm::vec3(0.5f, 0.2f, 0.5f));
+        floorShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
+        
         glm::mat4 floorModel= glm::mat4(1.0f);
         floorModel= glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
-       
+        glm::mat4 floorModelInv = glm::inverse(floorModel);
+
         unsigned int floorModelLoc = glGetUniformLocation(floorShader.getShaderID(), "model");
         unsigned int floorViewLoc  = glGetUniformLocation(floorShader.getShaderID(), "view");
         unsigned int floorProjLoc  = glGetUniformLocation(floorShader.getShaderID(), "projection");
+        unsigned int floorInvModelLoc = glGetUniformLocation(floorShader.getShaderID(), "modelInverse"); 
         glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
         glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        glUniformMatrix4fv(floorInvModelLoc, 1, GL_FALSE, glm::value_ptr(floorModelInv));
         
         glBindVertexArray(floorVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -357,6 +372,7 @@ int main(){
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        lastFrame = currentFrame;
     }
     glfwTerminate();
     return 0;

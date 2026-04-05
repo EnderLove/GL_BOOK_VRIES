@@ -63,7 +63,7 @@ void Camera::processController(const float *axes, float deltaTime, float xOffset
     if (Pitch >  89.0f) Pitch =  89.0f;
     if (Pitch < -89.0f) Pitch = -89.0f;
     
-    Position.y = 0.0f; // STAY AT XZ LEVEL
+    //Position.y = 0.0f; // STAY AT XZ LEVEL
     updateCameraVectors();
 }
 
