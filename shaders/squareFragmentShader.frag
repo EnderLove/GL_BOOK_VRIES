@@ -17,7 +17,7 @@ uniform float alphaBlend;
 
 void main(){
     float ambientStrength  = 0.1;
-    float specularStrength = 3.0;
+    float specularStrength = 2.0;
 
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(lightPos - fragPos);
@@ -29,7 +29,7 @@ void main(){
 
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 256);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
     vec3 specular = specularStrength * spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;

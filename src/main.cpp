@@ -215,15 +215,18 @@ int main(){
     glBufferData(GL_ARRAY_BUFFER, sizeof(wallVertices), wallVertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wallEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(wallIndices), wallIndices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // SHADER LOADING 
     Shader floorShader ("../shaders/floorVertexShader.vert" , "../shaders/floorFragmentShader.frag");
     Shader cubeShader  ("../shaders/squareVertexShader.vert", "../shaders/squareFragmentShader.frag");
-    Shader wallShader  ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
+    //Shader wallShader  ("../shaders/wallVertexShader.vert"  , "../shaders/wallFragmentShader.frag");
+    Shader wallShader  ("../shaders/floorVertexShader.vert"  , "../shaders/floorFragmentShader.frag");
     Shader lightShader ("../shaders/lightVertexShader.vert" , "../shaders/lightFragmentShader.frag");
     Shader lightSrcShader("../shaders/lightSourceVertexShader.vert", "../shaders/lightSourceFragmentShader.frag");
 
@@ -233,7 +236,8 @@ int main(){
     floorShader.use();
     floorShader.setInt("floorTexture", 2);
     wallShader.use();
-    wallShader.setInt("wallTexture", 3);
+    //wallShader.setInt("wallTexture", 3);
+    wallShader.setInt("floorTexture", 3);
 
     glm::vec3 lightPos = glm::vec3(-35.0f, 5.0f, 0.0f);
     cubeShader.use();
@@ -340,13 +344,20 @@ int main(){
 
         // SCENARIO WALLS
         wallShader.use();
+        wallShader.setVec3("lightPos", lightPos);
+        wallShader.setVec3("viewPos", camera.Position);
+        wallShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        wallShader.setVec3("objectColor", glm::vec3(0.5f, 0.1f, 0.2f));
         for (int i = 0; i < 4; i++){
             glm::mat4 wallModel= glm::mat4(1.0f);
             wallModel= glm::rotate(wallModel, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             wallModel= glm::translate(wallModel, glm::vec3(0.0f, -2.8f, -20.0f));
+            glm::mat4 wallInvModel = glm::inverse(wallModel);
+            unsigned int wallInvModelLoc = glGetUniformLocation(wallShader.getShaderID(), "modelInverse");
             unsigned int wallModelLoc = glGetUniformLocation(wallShader.getShaderID(), "model");
             unsigned int wallViewLoc  = glGetUniformLocation(wallShader.getShaderID(), "view");
             unsigned int wallProjLoc  = glGetUniformLocation(wallShader.getShaderID(), "projection");
+            glUniformMatrix4fv(wallInvModelLoc, 1, GL_FALSE, glm::value_ptr(wallInvModel));
             glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(wallModel));
             glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
             glUniformMatrix4fv(wallProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
