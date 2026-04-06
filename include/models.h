@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-float cubeVertices[] = {
+float cubeVertices2[] = {
     // positions         // normals                        // textCoords
     -0.5f, -0.5f, -0.5f,   -1.0f, -1.0f, -1.0f,     0.0f, 0.0f,  //1
      0.5f, -0.5f, -0.5f,    1.0f, -1.0f, -1.0f,    1.0f, 0.0f,
@@ -48,7 +48,7 @@ float cubeVertices[] = {
     -0.5f,  0.5f, -0.5f,   -1.0f,  1.0f, -1.0f,    0.0f, 1.0f
 };
 
-float cubeVertices2[] = {
+float cubeVertices[] = {
     // positions         // normals                        // textCoords
     -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, -1.0f,     0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,    0.0f, 0.0f, -1.0f,    1.0f, 0.0f,

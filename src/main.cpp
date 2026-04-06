@@ -229,7 +229,9 @@ int main(){
     Shader wallShader  ("../shaders/floorVertexShader.vert"  , "../shaders/floorFragmentShader.frag");
     Shader lightShader ("../shaders/lightVertexShader.vert" , "../shaders/lightFragmentShader.frag");
     Shader lightSrcShader("../shaders/lightSourceVertexShader.vert", "../shaders/lightSourceFragmentShader.frag");
+    Shader materialShader("../shaders/materialVertexShader.vert", "../shaders/materialFragmentShader.frag");
 
+    
     cubeShader.use();
     cubeShader.setInt("texture1", 0);
     cubeShader.setInt("texture2", 1);
@@ -241,7 +243,14 @@ int main(){
 
     glm::vec3 lightPos = glm::vec3(-35.0f, 5.0f, 0.0f);
     cubeShader.use();
-    cubeShader.setVec3("lightPos", lightPos);
+    cubeShader.setVec3("LightPos", lightPos);
+
+    materialShader.use();
+    materialShader.setInt("texture1", 0);
+    materialShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+    materialShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+    materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.5f, 0.31f));
+    materialShader.setFloat("material.shininess", 32.0f);
 
     float alphaBlendVal = 0;
     
@@ -271,30 +280,20 @@ int main(){
         glm::mat4 globalProjection = glm::mat4(1.0f);
         globalView = camera.GetViewMatrix(); 
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-      
-        /*
-            shader.use()
-            CubeModel Container
-            container.setView(1, GL_FALSE, globalView);
-            container.setProj(1, GL_FALSE, globalProjection);
-            container.model = glm::mat4(1.0f);
-
-            glBindVertexArray() SHOULD THE VAO, VBO & EBO BE IN THE MODEL CLASS? TODO
-            
-        */
 
         // CUBES ROTATING
-        cubeShader.use();
-        int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
-        glUniform1f(alphaBlendFragLocation, alphaBlendVal);
-        cubeShader.setVec3("objectColor", glm::vec3(3.0f, 0.5f, 3.0f));
-        cubeShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
+        materialShader.use();
+        //cubeShader.use();
+        //int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
+        //glUniform1f(alphaBlendFragLocation, alphaBlendVal);
+        materialShader.setVec3("objectColor", glm::vec3(3.0f, 0.5f, 3.0f));
+        materialShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
-        unsigned int modelLoc    = glGetUniformLocation(cubeShader.getShaderID(), "model");
-        unsigned int modelInvLoc = glGetUniformLocation(cubeShader.getShaderID(), "modelInverse");
-        unsigned int viewLoc     = glGetUniformLocation(cubeShader.getShaderID(), "view");
-        unsigned int projLoc     = glGetUniformLocation(cubeShader.getShaderID(), "projection");
+        unsigned int modelLoc    = glGetUniformLocation(materialShader.getShaderID(), "model");
+        unsigned int modelInvLoc = glGetUniformLocation(materialShader.getShaderID(), "modelInverse");
+        unsigned int viewLoc     = glGetUniformLocation(materialShader.getShaderID(), "view");
+        unsigned int projLoc     = glGetUniformLocation(materialShader.getShaderID(), "projection");
         glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
@@ -316,8 +315,8 @@ int main(){
         lightPos.x = (cos(lightAngle) * lightPos.x) + (-sin(lightAngle) * lightPos.z);
         lightPos.z = (sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.z);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        cubeShader.setVec3("lightPos", lightPos);
-        cubeShader.setVec3("viewPos", camera.Position);
+        materialShader.setVec3("lightPos", lightPos);
+        materialShader.setVec3("viewPos", camera.Position);
 
         // SCENARIO FLOOR
         floorShader.use();
@@ -344,10 +343,10 @@ int main(){
 
         // SCENARIO WALLS
         wallShader.use();
-        wallShader.setVec3("lightPos", lightPos);
+        wallShader.setVec3("LightPos", lightPos);
         wallShader.setVec3("viewPos", camera.Position);
         wallShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        wallShader.setVec3("objectColor", glm::vec3(0.5f, 0.1f, 0.2f));
+        wallShader.setVec3("objectColor", glm::vec3(0.5f, 0.1f, 0.5f));
         for (int i = 0; i < 4; i++){
             glm::mat4 wallModel= glm::mat4(1.0f);
             wallModel= glm::rotate(wallModel, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
