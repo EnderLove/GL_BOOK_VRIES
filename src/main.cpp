@@ -247,7 +247,7 @@ int main(){
 
     materialShader.use();
     materialShader.setInt("texture1", 0);
-    materialShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+    materialShader.setVec3("material.ambient", glm::vec3(0.5f, 0.2f, 0.11f));
     materialShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
     materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.5f, 0.31f));
     materialShader.setFloat("material.shininess", 32.0f);
@@ -280,6 +280,15 @@ int main(){
         glm::mat4 globalProjection = glm::mat4(1.0f);
         globalView = camera.GetViewMatrix(); 
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        
+        // LIGHT POS ROTATION 
+        //materialShader.use();
+        float lightAngle = 0.05 * deltaTime;
+        lightPos.x = (cos(lightAngle) * lightPos.x) + (-sin(lightAngle) * lightPos.z);
+        lightPos.z = (sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.z);
+        if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
+        materialShader.setVec3("lightPos", lightPos);
+        materialShader.setVec3("viewPos", camera.Position);
 
         // CUBES ROTATING
         materialShader.use();
@@ -310,14 +319,7 @@ int main(){
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cubeModel));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        
-        float lightAngle = 0.05 * deltaTime;
-        lightPos.x = (cos(lightAngle) * lightPos.x) + (-sin(lightAngle) * lightPos.z);
-        lightPos.z = (sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.z);
-        if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        materialShader.setVec3("lightPos", lightPos);
-        materialShader.setVec3("viewPos", camera.Position);
-
+       
         // SCENARIO FLOOR
         floorShader.use();
         floorShader.setVec3("lightPos", lightPos);
