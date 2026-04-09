@@ -248,9 +248,9 @@ int main(){
     materialShader.use();
     materialShader.setInt("texture1", 0);
     materialShader.setVec3("material.ambient", glm::vec3(0.5f, 0.2f, 0.11f));
-    materialShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+    materialShader.setVec3("material.diffuse", glm::vec3(0.0f, 0.5f, 1.0f));
     materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.5f, 0.31f));
-    materialShader.setFloat("material.shininess", 32.0f);
+    materialShader.setFloat("material.shininess", 256.0f); //TODO FIX VALUE 
 
     float alphaBlendVal = 0;
     
@@ -282,8 +282,8 @@ int main(){
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
         // LIGHT POS ROTATION 
-        //materialShader.use();
-        float lightAngle = 0.05 * deltaTime;
+        materialShader.use();
+        float lightAngle = 0.15 * deltaTime;
         lightPos.x = (cos(lightAngle) * lightPos.x) + (-sin(lightAngle) * lightPos.z);
         lightPos.z = (sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.z);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
@@ -292,10 +292,7 @@ int main(){
 
         // CUBES ROTATING
         materialShader.use();
-        //cubeShader.use();
-        //int alphaBlendFragLocation = glGetUniformLocation(cubeShader.getShaderID(), "alphaBlend");
-        //glUniform1f(alphaBlendFragLocation, alphaBlendVal);
-        materialShader.setVec3("objectColor", glm::vec3(3.0f, 0.5f, 3.0f));
+        materialShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
         materialShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
