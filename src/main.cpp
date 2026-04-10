@@ -243,14 +243,17 @@ int main(){
 
     glm::vec3 lightPos = glm::vec3(-35.0f, 5.0f, 0.0f);
     cubeShader.use();
-    cubeShader.setVec3("LightPos", lightPos);
+    cubeShader.setVec3("light.position", lightPos);
 
     materialShader.use();
     materialShader.setInt("texture1", 0);
-    materialShader.setVec3("material.ambient", glm::vec3(0.5f, 0.2f, 0.11f));
-    materialShader.setVec3("material.diffuse", glm::vec3(0.0f, 0.5f, 1.0f));
-    materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.5f, 0.31f));
-    materialShader.setFloat("material.shininess", 256.0f); //TODO FIX VALUE 
+    materialShader.setVec3("light.ambient" , glm::vec3(0.6f, 0.6f, 0.6f));
+    materialShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
+    materialShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    materialShader.setVec3("material.ambient" , glm::vec3(0.5f, 0.2f, 0.11f));
+    materialShader.setVec3("material.diffuse" , glm::vec3(0.0f, 0.5f, 1.0f));
+    materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.0f, 1.0f));
+    materialShader.setFloat("material.shininess", 32.0f); 
 
     float alphaBlendVal = 0;
     
@@ -283,11 +286,13 @@ int main(){
         
         // LIGHT POS ROTATION 
         materialShader.use();
-        float lightAngle = 0.15 * deltaTime;
-        lightPos.x = (cos(lightAngle) * lightPos.x) + (-sin(lightAngle) * lightPos.z);
-        lightPos.z = (sin(lightAngle) * lightPos.x) + (cos(lightAngle) * lightPos.z);
+        float lightAngle = 3.15 * deltaTime;
+        float lPosx = lightPos.x;
+        float lPosz = lightPos.z;
+        lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
+        lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        materialShader.setVec3("lightPos", lightPos);
+        materialShader.setVec3("light.position", lightPos);
         materialShader.setVec3("viewPos", camera.Position);
 
         // CUBES ROTATING
@@ -317,8 +322,8 @@ int main(){
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
        
-        // SCENARIO FLOOR
         floorShader.use();
+        // SCENARIO FLOOR
         floorShader.setVec3("lightPos", lightPos);
         floorShader.setVec3("viewPos", camera.Position);
         floorShader.setVec3("objectColor", glm::vec3(0.5f, 0.2f, 0.5f));
