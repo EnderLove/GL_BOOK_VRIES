@@ -246,15 +246,16 @@ int main(){
     cubeShader.setVec3("light.position", lightPos);
 
     materialShader.use();
-    materialShader.setInt("texture1", 0);
-    materialShader.setVec3("light.ambient" , glm::vec3(0.6f, 0.6f, 0.6f));
-    materialShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
+    materialShader.setInt("material.diffuse", 4);
+    materialShader.setVec3("light.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
+    materialShader.setVec3("light.diffuse" , glm::vec3(0.8f, 0.3f, 0.3f));
     materialShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    materialShader.setVec3("material.ambient" , glm::vec3(0.5f, 0.2f, 0.11f));
-    materialShader.setVec3("material.diffuse" , glm::vec3(0.0f, 0.5f, 1.0f));
+    //materialShader.setVec3("material.ambient" , glm::vec3(0.5f, 0.2f, 0.11f));
+    //materialShader.setVec3("material.diffuse" , glm::vec3(0.0f, 0.5f, 1.0f));
     materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.0f, 1.0f));
-    materialShader.setFloat("material.shininess", 32.0f); 
+    materialShader.setFloat("material.shininess", 256.0f); 
 
+    glm::vec3 colorLight;
     float alphaBlendVal = 0;
     
     while (!glfwWindowShouldClose(window)){
@@ -277,6 +278,7 @@ int main(){
         textures.pixelRedEye.bindTexture(0);
         textures.floor.bindTexture(2);
         textures.metal.bindTexture(3);
+        textures.container2.bindTexture(4);
 
         // GLOBAL VIEW & PROJECTION 
         glm::mat4 globalView       = glm::mat4(1.0f);
@@ -286,7 +288,7 @@ int main(){
         
         // LIGHT POS ROTATION 
         materialShader.use();
-        float lightAngle = 3.15 * deltaTime;
+        float lightAngle = 0.05 * deltaTime;
         float lPosx = lightPos.x;
         float lPosz = lightPos.z;
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
@@ -294,6 +296,16 @@ int main(){
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
         materialShader.setVec3("light.position", lightPos);
         materialShader.setVec3("viewPos", camera.Position);
+
+        //colorLight.x = sin(glfwGetTime() * 2.0f);
+        //colorLight.y = sin(glfwGetTime() * 0.5f);
+        //colorLight.z = sin(glfwGetTime() * 4.0f);
+
+        //glm::vec3 diffuseColor = colorLight * glm::vec3(1.0f);
+        //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.5f);
+
+        //materialShader.setVec3("light.ambient", ambientColor);
+        //materialShader.setVec3("light.diffuse", diffuseColor);
 
         // CUBES ROTATING
         materialShader.use();
@@ -371,6 +383,7 @@ int main(){
 
         // SCENARIO LIGHT SOURCE 
         lightSrcShader.use();
+        lightSrcShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         glm::mat4 lightModel = glm::mat4(1.0f);
         lightModel = glm::translate(lightModel, lightPos);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));

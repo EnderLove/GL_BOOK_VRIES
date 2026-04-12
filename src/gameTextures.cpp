@@ -9,12 +9,14 @@ class LoadTextures{
         Gen2DTexture floor;
         Gen2DTexture pixelRedEye;
         Gen2DTexture metal;
+        Gen2DTexture container2;
 
         void loadAll(){
             woodBoxContainer.loadTexture("../resources/textures/container.jpg", GL_RGB, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
             pixelRedEye.loadTexture     ("../resources/textures/pixelArtEye.png", GL_RGBA, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
             floor.loadTexture           ("../resources/textures/wall.jpg", GL_RGB, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
             metal.loadTexture           ("../resources/textures/wall.jpg", GL_RGB, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+            container2.loadTexture      ("../resources/textures/container2.png", GL_RGBA, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
         }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

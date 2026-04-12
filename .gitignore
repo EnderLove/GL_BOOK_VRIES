@@ -62,6 +62,7 @@ compile_commands.json
 vcpkg_installed/
 
 # debug information files
+DebugCaptures/
 *.dwo
 
 # test output & cache
