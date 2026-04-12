@@ -8,7 +8,8 @@ struct Light{ // Light behaivour
 };
 struct Material{
     sampler2D diffuse;
-    vec3 specular;
+    sampler2D specular;
+    sampler2D emission;
     float shininess;
 };
 uniform Material material;
@@ -40,9 +41,13 @@ void main(){
     vec3 reflectDir = reflect(-lightDir, norm);
     //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     float spec = pow(dot(viewDir, reflectDir), material.shininess);
-    vec3 specular = light.specular * (spec * material.specular);
+    //vec3 specular = light.specular * (spec * material.specular);
+    vec3 specular = light.specular * (spec * vec3(texture(material.specular, texCoord)));
 
-    vec3 result = (ambient + diffuse + specular);
+    float emissionIntensity = dot(norm, lightDir);
+    vec3 emission = vec3(1.0) * (-emissionIntensity * vec3(texture(material.emission, texCoord)));
+
+    vec3 result = (ambient + diffuse + specular + emission);
 
     //FragColor = texture(texture1, texCoord) * vec4(result, 1.0); 
     FragColor = vec4(result, 1.0); 

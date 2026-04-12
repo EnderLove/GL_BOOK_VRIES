@@ -247,13 +247,15 @@ int main(){
 
     materialShader.use();
     materialShader.setInt("material.diffuse", 4);
+    materialShader.setInt("material.specular", 5);
+    materialShader.setInt("material.emission", 6);
     materialShader.setVec3("light.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
-    materialShader.setVec3("light.diffuse" , glm::vec3(0.8f, 0.3f, 0.3f));
+    materialShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
     materialShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     //materialShader.setVec3("material.ambient" , glm::vec3(0.5f, 0.2f, 0.11f));
     //materialShader.setVec3("material.diffuse" , glm::vec3(0.0f, 0.5f, 1.0f));
-    materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.0f, 1.0f));
-    materialShader.setFloat("material.shininess", 256.0f); 
+    //materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.0f, 1.0f));
+    materialShader.setFloat("material.shininess", 512.0f); 
 
     glm::vec3 colorLight;
     float alphaBlendVal = 0;
@@ -279,6 +281,8 @@ int main(){
         textures.floor.bindTexture(2);
         textures.metal.bindTexture(3);
         textures.container2.bindTexture(4);
+        textures.container2Spec.bindTexture(5);
+        textures.matrix.bindTexture(6);
 
         // GLOBAL VIEW & PROJECTION 
         glm::mat4 globalView       = glm::mat4(1.0f);
