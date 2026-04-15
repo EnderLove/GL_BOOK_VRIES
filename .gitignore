@@ -63,6 +63,8 @@ vcpkg_installed/
 
 # debug information files
 DebugCaptures/
+DebugPics/
+*.rdc 
 *.dwo
 
 # test output & cache
