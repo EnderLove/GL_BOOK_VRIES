@@ -11,6 +11,7 @@ class LoadTextures{
         Gen2DTexture metal;
         Gen2DTexture container2;
         Gen2DTexture container2Spec;
+        Gen2DTexture container2WoodEmission;
         Gen2DTexture matrix;
 
         void loadAll(){
@@ -21,6 +22,7 @@ class LoadTextures{
             container2.loadTexture      ("../resources/textures/container2.png", GL_RGBA, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
             container2Spec.loadTexture  ("../resources/textures/container2_specular.png", GL_RGBA, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
             matrix.loadTexture          ("../resources/textures/matrix.jpg", GL_RGB, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+            container2WoodEmission.loadTexture("../resources/textures/container2_emission.png", GL_RGBA, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
             
         }
 };

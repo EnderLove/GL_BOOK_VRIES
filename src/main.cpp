@@ -241,7 +241,7 @@ int main(){
     //wallShader.setInt("wallTexture", 3);
     wallShader.setInt("floorTexture", 3);
 
-    glm::vec3 lightPos = glm::vec3(-35.0f, 5.0f, 0.0f);
+    glm::vec4 lightPos = glm::vec4(-35.0f, 5.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
     cubeShader.use();
     cubeShader.setVec3("light.position", lightPos);
 
@@ -255,7 +255,7 @@ int main(){
     //materialShader.setVec3("material.ambient" , glm::vec3(0.5f, 0.2f, 0.11f));
     //materialShader.setVec3("material.diffuse" , glm::vec3(0.0f, 0.5f, 1.0f));
     //materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.0f, 1.0f));
-    materialShader.setFloat("material.shininess", 512.0f); 
+    materialShader.setFloat("material.shininess", 256.0f); 
 
     glm::vec3 colorLight;
     float alphaBlendVal = 0;
@@ -283,6 +283,7 @@ int main(){
         textures.container2.bindTexture(4);
         textures.container2Spec.bindTexture(5);
         textures.matrix.bindTexture(6);
+        //textures.container2WoodEmission.bindTexture(6);
 
         // GLOBAL VIEW & PROJECTION 
         glm::mat4 globalView       = glm::mat4(1.0f);
@@ -292,27 +293,32 @@ int main(){
         
         // LIGHT POS ROTATION 
         materialShader.use();
-        float lightAngle = 0.05 * deltaTime;
+        float lightAngle = 0.10f * deltaTime;
         float lPosx = lightPos.x;
         float lPosz = lightPos.z;
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        materialShader.setVec3("light.position", lightPos);
+        materialShader.setVec4("light.position", lightPos);
         materialShader.setVec3("viewPos", camera.Position);
 
         //colorLight.x = sin(glfwGetTime() * 2.0f);
         //colorLight.y = sin(glfwGetTime() * 0.5f);
         //colorLight.z = sin(glfwGetTime() * 4.0f);
+        //colorLight = glm::vec3(r, g, b); 
+        colorLight = glm::vec3(1.0f);
 
-        //glm::vec3 diffuseColor = colorLight * glm::vec3(1.0f);
-        //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.5f);
+
+        glm::vec3 diffuseColor = colorLight * glm::vec3(1.0f);
+        glm::vec3 ambientColor = diffuseColor;
 
         //materialShader.setVec3("light.ambient", ambientColor);
-        //materialShader.setVec3("light.diffuse", diffuseColor);
+        materialShader.setVec3("light.diffuse", diffuseColor);
 
         // CUBES ROTATING
         materialShader.use();
+        float texMoveSpeed;
+        materialShader.setFloat("time", glfwGetTime());
         materialShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
         materialShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -389,7 +395,7 @@ int main(){
         lightSrcShader.use();
         lightSrcShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         glm::mat4 lightModel = glm::mat4(1.0f);
-        lightModel = glm::translate(lightModel, lightPos);
+        lightModel = glm::translate(lightModel, (glm::vec3)lightPos);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));
         unsigned int lightModelLoc = glGetUniformLocation(lightSrcShader.getShaderID(), "model");
         unsigned int lightViewLoc  = glGetUniformLocation(lightSrcShader.getShaderID(), "view");
