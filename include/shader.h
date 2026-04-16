@@ -25,6 +25,8 @@ class Shader{
 
         void setVec3 (const std::string name, glm::vec3 value) const;
         void setVec4 (const std::string name, glm::vec4 value) const;
+
+        void setAttenuation (glm::vec3 value) const;
 };
 
 #endif // !SHADER_H

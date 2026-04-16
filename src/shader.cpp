@@ -99,3 +99,28 @@ void Shader::setVec3(const std::string name, glm::vec3 value) const {
 void Shader::setVec4(const std::string name, glm::vec4 value) const {
     glUniform4f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z, value.w);
 }
+
+
+void Shader::setAttenuation(glm::vec3 value) const {
+    glUniform1f(glGetUniformLocation(ID, "light.constant") , value.x);
+    glUniform1f(glGetUniformLocation(ID, "light.linear")   , value.y);
+    glUniform1f(glGetUniformLocation(ID, "light.quadratic"), value.z);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

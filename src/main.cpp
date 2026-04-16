@@ -230,6 +230,7 @@ int main(){
     Shader lightShader ("../shaders/lightVertexShader.vert" , "../shaders/lightFragmentShader.frag");
     Shader lightSrcShader("../shaders/lightSourceVertexShader.vert", "../shaders/lightSourceFragmentShader.frag");
     Shader materialShader("../shaders/materialVertexShader.vert", "../shaders/materialFragmentShader.frag");
+    Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
 
     
     cubeShader.use();
@@ -241,9 +242,21 @@ int main(){
     //wallShader.setInt("wallTexture", 3);
     wallShader.setInt("floorTexture", 3);
 
-    glm::vec4 lightPos = glm::vec4(-35.0f, 5.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
+    //glm::vec4 lightPos = glm::vec4(-35.0f, 5.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
+    glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
     cubeShader.use();
     cubeShader.setVec3("light.position", lightPos);
+
+    attenuationShader.use();
+    attenuationShader.setInt("material.diffuse" , 4);
+    attenuationShader.setInt("material.specular", 5);
+    attenuationShader.setInt("material.emission", 6);
+    attenuationShader.setVec3("light.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
+    attenuationShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
+    attenuationShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    attenuationShader.setFloat("material.shininess", 256.0f); 
+    attenuationShader.setAttenuation(glm::vec3(1.0f, 0.04f, 0.015f));
+
 
     materialShader.use();
     materialShader.setInt("material.diffuse", 4);
@@ -252,9 +265,6 @@ int main(){
     materialShader.setVec3("light.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
     materialShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
     materialShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    //materialShader.setVec3("material.ambient" , glm::vec3(0.5f, 0.2f, 0.11f));
-    //materialShader.setVec3("material.diffuse" , glm::vec3(0.0f, 0.5f, 1.0f));
-    //materialShader.setVec3("material.specular", glm::vec3(1.0f, 0.0f, 1.0f));
     materialShader.setFloat("material.shininess", 256.0f); 
 
     glm::vec3 colorLight;
@@ -292,15 +302,15 @@ int main(){
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
         // LIGHT POS ROTATION 
-        materialShader.use();
+        attenuationShader.use();
         float lightAngle = 0.10f * deltaTime;
         float lPosx = lightPos.x;
         float lPosz = lightPos.z;
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        materialShader.setVec4("light.position", lightPos);
-        materialShader.setVec3("viewPos", camera.Position);
+        attenuationShader.setVec4("light.position", lightPos);
+        attenuationShader.setVec3("viewPos", camera.Position);
 
         //colorLight.x = sin(glfwGetTime() * 2.0f);
         //colorLight.y = sin(glfwGetTime() * 0.5f);
@@ -312,21 +322,21 @@ int main(){
         glm::vec3 diffuseColor = colorLight * glm::vec3(1.0f);
         glm::vec3 ambientColor = diffuseColor;
 
-        //materialShader.setVec3("light.ambient", ambientColor);
-        materialShader.setVec3("light.diffuse", diffuseColor);
+        //attenuationShader.setVec3("light.ambient", ambientColor);
+        attenuationShader.setVec3("light.diffuse", diffuseColor);
 
         // CUBES ROTATING
-        materialShader.use();
+        attenuationShader.use();
         float texMoveSpeed;
-        materialShader.setFloat("time", glfwGetTime());
-        materialShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
-        materialShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
+        attenuationShader.setFloat("time", glfwGetTime());
+        attenuationShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
+        attenuationShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
-        unsigned int modelLoc    = glGetUniformLocation(materialShader.getShaderID(), "model");
-        unsigned int modelInvLoc = glGetUniformLocation(materialShader.getShaderID(), "modelInverse");
-        unsigned int viewLoc     = glGetUniformLocation(materialShader.getShaderID(), "view");
-        unsigned int projLoc     = glGetUniformLocation(materialShader.getShaderID(), "projection");
+        unsigned int modelLoc    = glGetUniformLocation(attenuationShader.getShaderID(), "model");
+        unsigned int modelInvLoc = glGetUniformLocation(attenuationShader.getShaderID(), "modelInverse");
+        unsigned int viewLoc     = glGetUniformLocation(attenuationShader.getShaderID(), "view");
+        unsigned int projLoc     = glGetUniformLocation(attenuationShader.getShaderID(), "projection");
         glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
