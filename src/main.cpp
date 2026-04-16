@@ -243,7 +243,7 @@ int main(){
     wallShader.setInt("floorTexture", 3);
 
     //glm::vec4 lightPos = glm::vec4(-35.0f, 5.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
-    glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
+    glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
     cubeShader.use();
     cubeShader.setVec3("light.position", lightPos);
 
@@ -327,6 +327,10 @@ int main(){
 
         // CUBES ROTATING
         attenuationShader.use();
+        attenuationShader.setInt("material.diffuse" , 4);
+        attenuationShader.setInt("material.specular", 5);
+        attenuationShader.setInt("material.emission", 6);
+
         float texMoveSpeed;
         attenuationShader.setFloat("time", glfwGetTime());
         attenuationShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
@@ -354,21 +358,26 @@ int main(){
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
        
-        floorShader.use();
         // SCENARIO FLOOR
-        floorShader.setVec3("lightPos", lightPos);
-        floorShader.setVec3("viewPos", camera.Position);
-        floorShader.setVec3("objectColor", glm::vec3(0.5f, 0.2f, 0.5f));
-        floorShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
+        
+        attenuationShader.use();
+        attenuationShader.setInt("material.diffuse", 2);
+        attenuationShader.setInt("material.specular", 2);
+
+        //floorShader.use();
+        //floorShader.setVec3("lightPos", lightPos);
+        //floorShader.setVec3("viewPos", camera.Position);
+        //floorShader.setVec3("objectColor", glm::vec3(0.5f, 0.2f, 0.5f));
+        //floorShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
         
         glm::mat4 floorModel= glm::mat4(1.0f);
         floorModel= glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
         glm::mat4 floorModelInv = glm::inverse(floorModel);
 
-        unsigned int floorModelLoc = glGetUniformLocation(floorShader.getShaderID(), "model");
-        unsigned int floorViewLoc  = glGetUniformLocation(floorShader.getShaderID(), "view");
-        unsigned int floorProjLoc  = glGetUniformLocation(floorShader.getShaderID(), "projection");
-        unsigned int floorInvModelLoc = glGetUniformLocation(floorShader.getShaderID(), "modelInverse"); 
+        unsigned int floorModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "model");
+        unsigned int floorViewLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "view");
+        unsigned int floorProjLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "projection");
+        unsigned int floorInvModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "modelInverse"); 
         glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
         glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
@@ -378,20 +387,25 @@ int main(){
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // SCENARIO WALLS
-        wallShader.use();
-        wallShader.setVec3("LightPos", lightPos);
-        wallShader.setVec3("viewPos", camera.Position);
-        wallShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        wallShader.setVec3("objectColor", glm::vec3(0.5f, 0.1f, 0.5f));
+        
+        attenuationShader.use();
+        attenuationShader.setInt("material.diffuse", 2);
+        attenuationShader.setInt("material.specular", 2);
+
+        //wallShader.use(); 
+        //wallShader.setVec3("LightPos", lightPos);
+        //wallShader.setVec3("viewPos", camera.Position);
+        //wallShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        //wallShader.setVec3("objectColor", glm::vec3(0.5f, 0.1f, 0.5f));
         for (int i = 0; i < 4; i++){
             glm::mat4 wallModel= glm::mat4(1.0f);
             wallModel= glm::rotate(wallModel, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             wallModel= glm::translate(wallModel, glm::vec3(0.0f, -2.8f, -20.0f));
             glm::mat4 wallInvModel = glm::inverse(wallModel);
-            unsigned int wallInvModelLoc = glGetUniformLocation(wallShader.getShaderID(), "modelInverse");
-            unsigned int wallModelLoc = glGetUniformLocation(wallShader.getShaderID(), "model");
-            unsigned int wallViewLoc  = glGetUniformLocation(wallShader.getShaderID(), "view");
-            unsigned int wallProjLoc  = glGetUniformLocation(wallShader.getShaderID(), "projection");
+            unsigned int wallInvModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "modelInverse");
+            unsigned int wallModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "model");
+            unsigned int wallViewLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "view");
+            unsigned int wallProjLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "projection");
             glUniformMatrix4fv(wallInvModelLoc, 1, GL_FALSE, glm::value_ptr(wallInvModel));
             glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(wallModel));
             glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
