@@ -24,6 +24,7 @@ add_executable(test
     imgui/imgui_tables.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_widgets.cpp
+    imgui/imgui_impl_opengl3_loader.h
 )
 
 # 3. NOW apply settings to that target (The "Paint")

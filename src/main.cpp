@@ -24,6 +24,8 @@ const int SCR_SOURCE_HEIGHT = 1080;
 const int SCR_WIDTH  = 16 * 80;
 const int SCR_HEIGHT =  9 * 90;
 
+bool editMode = false;
+
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // Initialization of the camera with a pos
 
 float lastX = (float)SCR_WIDTH  / 2;
@@ -43,6 +45,10 @@ void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
 void processInput(GLFWwindow *window){
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+        editMode = true;
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+        editMode = false;
 }
 
 void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
@@ -56,8 +62,8 @@ void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
     float yOffset = lastY - yPos;
     lastX = xPos;
     lastY = yPos;
-    
-    camera.ProcessMouseMovement(xOffset, yOffset);
+   
+    if (editMode == false) camera.ProcessMouseMovement(xOffset, yOffset);
 };
 
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset){
@@ -141,6 +147,7 @@ int main(){
         printf("NUMBER OF AXES AVAILABLE: %d\n", axesCount);
     }
 
+    // TODO SET EDIT MODE WITH CURSOR ACTIVATION
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, cursorCallBack);
     glfwSetScrollCallback(window, scrollCallback);
@@ -251,6 +258,7 @@ int main(){
     cubeShader.use();
     cubeShader.setVec3("light.position", lightPos);
 
+    glm::vec3 attenuationConfig = glm::vec3(1.0f, 0.04f, 0.015f);
     attenuationShader.use();
     attenuationShader.setInt("material.diffuse" , 4);
     attenuationShader.setInt("material.specular", 5);
@@ -259,7 +267,7 @@ int main(){
     attenuationShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
     attenuationShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     attenuationShader.setFloat("material.shininess", 256.0f); 
-    attenuationShader.setAttenuation(glm::vec3(1.0f, 0.04f, 0.015f));
+    attenuationShader.setAttenuation(attenuationConfig);
 
 
     materialShader.use();
@@ -271,15 +279,17 @@ int main(){
     materialShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     materialShader.setFloat("material.shininess", 256.0f); 
 
-    glm::vec3 colorLight;
+    float colorLight[4] = {1, 1, 1, 1};
     float alphaBlendVal = 0;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("version 330");
+    ImGui_ImplOpenGL3_Init("#version 430 core");
+    ImGui::StyleColorsDark();
+
+    printf("%s\n", glGetString(GL_VERSION));
     
     while (!glfwWindowShouldClose(window)){
         processInput(window);
@@ -289,9 +299,19 @@ int main(){
         
         if (CONTROLLER_CONNECTED) processCameraInputController();
         if (CONTROLLER_CONNECTED) camera.triggerAimViewFov(controllerAxes);
+    
+        if (editMode == true){
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        } else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -322,19 +342,6 @@ int main(){
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
         attenuationShader.setVec4("light.position", lightPos);
         attenuationShader.setVec3("viewPos", camera.Position);
-
-        //colorLight.x = sin(glfwGetTime() * 2.0f);
-        //colorLight.y = sin(glfwGetTime() * 0.5f);
-        //colorLight.z = sin(glfwGetTime() * 4.0f);
-        //colorLight = glm::vec3(r, g, b); 
-        colorLight = glm::vec3(1.0f);
-
-
-        glm::vec3 diffuseColor = colorLight * glm::vec3(1.0f);
-        glm::vec3 ambientColor = diffuseColor;
-
-        //attenuationShader.setVec3("light.ambient", ambientColor);
-        attenuationShader.setVec3("light.diffuse", diffuseColor);
 
         // CUBES ROTATING
         attenuationShader.use();
@@ -370,17 +377,10 @@ int main(){
         }
        
         // SCENARIO FLOOR
-        
         attenuationShader.use();
         attenuationShader.setInt("material.diffuse", 2);
         attenuationShader.setInt("material.specular", 2);
 
-        //floorShader.use();
-        //floorShader.setVec3("lightPos", lightPos);
-        //floorShader.setVec3("viewPos", camera.Position);
-        //floorShader.setVec3("objectColor", glm::vec3(0.5f, 0.2f, 0.5f));
-        //floorShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
-        
         glm::mat4 floorModel= glm::mat4(1.0f);
         floorModel= glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
         glm::mat4 floorModelInv = glm::inverse(floorModel);
@@ -398,16 +398,10 @@ int main(){
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // SCENARIO WALLS
-        
         attenuationShader.use();
         attenuationShader.setInt("material.diffuse", 2);
         attenuationShader.setInt("material.specular", 2);
 
-        //wallShader.use(); 
-        //wallShader.setVec3("LightPos", lightPos);
-        //wallShader.setVec3("viewPos", camera.Position);
-        //wallShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        //wallShader.setVec3("objectColor", glm::vec3(0.5f, 0.1f, 0.5f));
         for (int i = 0; i < 4; i++){
             glm::mat4 wallModel= glm::mat4(1.0f);
             wallModel= glm::rotate(wallModel, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -442,10 +436,31 @@ int main(){
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
+        // IMGUI WINDOW BUILD 
+        ImGui::Begin("EDIT MODE");
+        ImGui::Text("ATTENUATION CONFIGURATION");
+        ImGui::SliderFloat("Attenuation Const" , &attenuationConfig.x, 0.0f, 2.0f);
+        ImGui::SliderFloat("Attenuation Linear", &attenuationConfig.y, 0.0f, 1.0f);
+        ImGui::SliderFloat("Attenuation Quad"  , &attenuationConfig.z, 0.0f, 1.0f);
+        ImGui::Text("LIGHT COLOR");
+        ImGui::ColorEdit4("Light Color", colorLight);
+        ImGui::End();
+        attenuationShader.use();
+        attenuationShader.setAttenuation(attenuationConfig);
+        attenuationShader.setVec3("light.diffuse", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
+
+        // IMGUI WINDOW RENDER
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
         lastFrame = currentFrame;
     }
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     glfwTerminate();
     return 0;
 }
