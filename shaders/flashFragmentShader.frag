@@ -12,6 +12,7 @@ struct Light{
     float linear;
     float quadratic;
     float cutOff; // Light aperture
+    float outerCutOff;
 };
 struct Material{
     sampler2D diffuse;
@@ -58,8 +59,11 @@ void main(){
     }
 
     float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = light.cutOff - light.outerCutOff;
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
     vec3 result; 
-    if (theta > light.cutOff){
+    //if (theta > light.cutOff){
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = light.diffuse * (diff * vec3(texture(material.diffuse, texCoord)));
 
@@ -70,14 +74,14 @@ void main(){
         vec3 specular = light.specular * (spec * vec3(texture(material.specular, texCoord)));
 
         ambient  *= attenuation;
-        diffuse  *= attenuation;
-        specular *= attenuation;
+        diffuse  *= intensity * attenuation;
+        specular *= intensity * attenuation;
 
         result = (ambient + diffuse + specular + emission);
 
-    } else {
-        result = (ambient);
-    }
+    //} else {
+        //result = (ambient);
+    //}
         FragColor = vec4(result, 1.0);
 }
 

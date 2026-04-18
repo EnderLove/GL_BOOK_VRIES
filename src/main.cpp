@@ -334,6 +334,7 @@ int main(){
         attenuationShader.setVec4("light.position", glm::vec4(camera.Position, 1.0));
         attenuationShader.setVec3("light.direction", camera.Front);
         attenuationShader.setFloat("light.cutOff", glm::cos(glm::radians(15.0f)));
+        attenuationShader.setFloat("light.outerCutOff", glm::cos(glm::radians(20.0f)));
         attenuationShader.setVec3("viewPos", camera.Position);
 
         // CUBES ROTATING
