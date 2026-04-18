@@ -241,7 +241,8 @@ int main(){
     Shader lightShader ("../shaders/lightVertexShader.vert" , "../shaders/lightFragmentShader.frag");
     Shader lightSrcShader("../shaders/lightSourceVertexShader.vert", "../shaders/lightSourceFragmentShader.frag");
     Shader materialShader("../shaders/materialVertexShader.vert", "../shaders/materialFragmentShader.frag");
-    Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
+    //Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
+    Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/flashFragmentShader.frag");
 
     
     cubeShader.use();
@@ -268,16 +269,6 @@ int main(){
     attenuationShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     attenuationShader.setFloat("material.shininess", 256.0f); 
     attenuationShader.setAttenuation(attenuationConfig);
-
-
-    materialShader.use();
-    materialShader.setInt("material.diffuse", 4);
-    materialShader.setInt("material.specular", 5);
-    materialShader.setInt("material.emission", 6);
-    materialShader.setVec3("light.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
-    materialShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
-    materialShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    materialShader.setFloat("material.shininess", 256.0f); 
 
     float colorLight[4] = {1, 1, 1, 1};
     float alphaBlendVal = 0;
@@ -331,7 +322,7 @@ int main(){
         glm::mat4 globalProjection = glm::mat4(1.0f);
         globalView = camera.GetViewMatrix(); 
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        
+       
         // LIGHT POS ROTATION 
         attenuationShader.use();
         float lightAngle = 0.10f * deltaTime;
@@ -340,7 +331,9 @@ int main(){
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        attenuationShader.setVec4("light.position", lightPos);
+        attenuationShader.setVec4("light.position", glm::vec4(camera.Position, 1.0));
+        attenuationShader.setVec3("light.direction", camera.Front);
+        attenuationShader.setFloat("light.cutOff", glm::cos(glm::radians(15.0f)));
         attenuationShader.setVec3("viewPos", camera.Position);
 
         // CUBES ROTATING
@@ -422,7 +415,7 @@ int main(){
 
         // SCENARIO LIGHT SOURCE 
         lightSrcShader.use();
-        lightSrcShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        lightSrcShader.setVec3("lightColor", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
         glm::mat4 lightModel = glm::mat4(1.0f);
         lightModel = glm::translate(lightModel, (glm::vec3)lightPos);
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));
@@ -448,6 +441,7 @@ int main(){
         attenuationShader.use();
         attenuationShader.setAttenuation(attenuationConfig);
         attenuationShader.setVec3("light.diffuse", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
+        attenuationShader.setVec3("light.ambient", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
 
         // IMGUI WINDOW RENDER
         ImGui::Render();
