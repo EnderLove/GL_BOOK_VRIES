@@ -250,8 +250,8 @@ int main(){
     globalShader.setVec3("dirLight.ambient" , glm::vec3(0.05f, 0.05f, 0.05f));
     globalShader.setVec3("dirLight.diffuse" , glm::vec3(0.05f, 0.05f, 0.05f));
     globalShader.setVec3("dirLight.specular", glm::vec3(0.05f, 0.05f, 0.05f));
+
     // Point Lights 
-    
     globalShader.setVec3("pointLights[0].ambient" , glm::vec3(0.5f, 0.5f, 0.5f));
     globalShader.setVec3("pointLights[0].diffuse" , glm::vec3(0.5f, 0.5f, 0.5f));
     globalShader.setVec3("pointLights[0].specular", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -289,6 +289,16 @@ int main(){
     globalShader.setVec3("pointLights[1].position", pointLightPositions[1]);
     globalShader.setVec3("pointLights[2].position", pointLightPositions[2]);
     globalShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+    
+    // FlashLight
+    globalShader.setVec3("flashLight.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
+    globalShader.setVec3("flashLight.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
+    globalShader.setVec3("flashLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+    globalShader.setFloat("flashLight.constant" , 1.0f);
+    globalShader.setFloat("flashLight.linear"   , 0.04f);
+    globalShader.setFloat("flashLight.quadratic", 0.015f);
+
 
     glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
 
@@ -364,10 +374,10 @@ int main(){
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        //globalShader.setVec4("light.position", glm::vec4(camera.Position, 1.0));
-        //globalShader.setVec3("light.direction", camera.Front);
-        //globalShader.setFloat("light.cutOff", glm::cos(glm::radians(15.0f)));
-        //globalShader.setFloat("light.outerCutOff", glm::cos(glm::radians(20.0f)));
+        globalShader.setVec3("flashLight.position", camera.Position);
+        globalShader.setVec3("flashLight.direction", camera.Front);
+        globalShader.setFloat("flashLight.cutOff", glm::cos(glm::radians(15.0f)));
+        globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
 
         // CUBES ROTATING
@@ -404,33 +414,10 @@ int main(){
         }
        
         // SCENARIO FLOOR
-        /*
-        attenuationShader.use();
-        attenuationShader.setInt("material.diffuse", 2);
-        attenuationShader.setInt("material.specular", 2);
-
-        glm::mat4 floorModel= glm::mat4(1.0f);
-        floorModel= glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
-        glm::mat4 floorModelInv = glm::inverse(floorModel);
-
-        unsigned int floorModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "model");
-        unsigned int floorViewLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "view");
-        unsigned int floorProjLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "projection");
-        unsigned int floorInvModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "modelInverse"); 
-        glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
-        glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        glUniformMatrix4fv(floorInvModelLoc, 1, GL_FALSE, glm::value_ptr(floorModelInv));
-        
-        glBindVertexArray(floorVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        */
-
         globalShader.use();
         globalShader.setInt("material.diffuse", 2);
         globalShader.setInt("material.specular", 2);
         globalShader.setFloat("material.shininess", 16);
-        globalShader.setVec3("viewPos", camera.Position);
 
         glm::mat4 floorModel= glm::mat4(1.0f);
         floorModel = glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
@@ -447,7 +434,6 @@ int main(){
         
         glBindVertexArray(floorVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 
         // SCENARIO WALLS
         globalShader.use();

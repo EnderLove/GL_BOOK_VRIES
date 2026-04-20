@@ -45,6 +45,7 @@ struct Material{
 
 uniform Material material;
 uniform DirLight dirLight;
+uniform FlashLight flashLight;
 
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
@@ -66,15 +67,18 @@ void main(){
     // Properties
     vec3 norm = normalize(normal); 
     vec3 viewDir = normalize(viewPos - fragPos);
-    //vec3 result = vec3(1.0);
+    vec3 result = vec3(0.0);
 
     // Directional lighting
-    vec3 result = calcDirLight(dirLight, norm, viewDir);
+    //result = calcDirLight(dirLight, norm, viewDir);
 
     // Point lights 
     for (int i = 0; i < NR_POINT_LIGHTS; i++){
         result += calcPointLight(pointLights[i], norm, fragPos, viewDir);
     }
+
+    // Flash light
+    result += calcFlashLight(flashLight, norm, fragPos, viewDir); 
 
     FragColor = vec4(result, 1.0);
 }
@@ -140,11 +144,11 @@ vec3 calcFlashLight(FlashLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
 
-    vec3 ambient  = light.ambient  *         vec3(texture(material.diffuse , texCoord));
+    vec3 ambient  = light.ambient  * vec3(0.0) * vec3(texture(material.diffuse , texCoord));
     vec3 diffuse  = light.diffuse  *         vec3(texture(material.diffuse , texCoord));
     vec3 specular = light.specular * (spec * vec3(texture(material.specular, texCoord))); 
 
-    ambient  *= attenuation;
+    //ambient  *= attenuation;
     diffuse  *= intensity * attenuation;
     specular *= intensity * attenuation;
 
