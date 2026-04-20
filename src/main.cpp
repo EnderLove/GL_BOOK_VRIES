@@ -179,7 +179,6 @@ int main(){
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -191,10 +190,10 @@ int main(){
     unsigned int lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
-    glBindBuffer(1, VBO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // FLOOR VERTEX DATA LOADING
@@ -243,21 +242,55 @@ int main(){
     Shader materialShader("../shaders/materialVertexShader.vert", "../shaders/materialFragmentShader.frag");
     //Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
     Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/flashFragmentShader.frag");
+    Shader globalShader("../shaders/globalVertexShader.vert", "../shaders/globalFragmentShader.frag");
 
+    globalShader.use();
+    // Directional Light
+    globalShader.setVec3("dirLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+    globalShader.setVec3("dirLight.ambient" , glm::vec3(0.05f, 0.05f, 0.05f));
+    globalShader.setVec3("dirLight.diffuse" , glm::vec3(0.05f, 0.05f, 0.05f));
+    globalShader.setVec3("dirLight.specular", glm::vec3(0.05f, 0.05f, 0.05f));
+    // Point Lights 
     
-    cubeShader.use();
-    cubeShader.setInt("texture1", 0);
-    cubeShader.setInt("texture2", 1);
-    floorShader.use();
-    floorShader.setInt("floorTexture", 2);
-    wallShader.use();
-    //wallShader.setInt("wallTexture", 3);
-    wallShader.setInt("floorTexture", 3);
+    globalShader.setVec3("pointLights[0].ambient" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[0].diffuse" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[0].specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[1].ambient" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[1].diffuse" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[1].specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[2].ambient" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[2].diffuse" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[2].specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[3].ambient" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[3].diffuse" , glm::vec3(0.5f, 0.5f, 0.5f));
+    globalShader.setVec3("pointLights[3].specular", glm::vec3(0.5f, 0.5f, 0.5f));
 
-    //glm::vec4 lightPos = glm::vec4(-35.0f, 5.0f, 0.0f, 0.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
+    globalShader.setFloat("pointLights[0].constant" , 1.0f); 
+    globalShader.setFloat("pointLights[0].linear"   , 0.04f); 
+    globalShader.setFloat("pointLights[0].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[1].constant" , 1.0f); 
+    globalShader.setFloat("pointLights[1].linear"   , 0.04f); 
+    globalShader.setFloat("pointLights[1].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[2].constant" , 1.0f); 
+    globalShader.setFloat("pointLights[2].linear"   , 0.04f); 
+    globalShader.setFloat("pointLights[2].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[3].constant" , 1.0f); 
+    globalShader.setFloat("pointLights[3].linear"   , 0.04f); 
+    globalShader.setFloat("pointLights[3].quadratic", 0.015f); 
+
+    glm::vec3 pointLightPositions[4] = {
+        glm::vec3( 15.0f, 2.0f,  15.0f),
+        glm::vec3( 15.0f, 2.0f, -15.0f),
+        glm::vec3(-15.0f, 2.0f, -15.0f),
+        glm::vec3(-15.0f, 2.0f,  15.0f)
+    };
+    
+    globalShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+    globalShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+    globalShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+    globalShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+
     glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
-    cubeShader.use();
-    cubeShader.setVec3("light.position", lightPos);
 
     glm::vec3 attenuationConfig = glm::vec3(1.0f, 0.04f, 0.015f);
     attenuationShader.use();
@@ -324,35 +357,35 @@ int main(){
         globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
        
         // LIGHT POS ROTATION 
-        attenuationShader.use();
+        globalShader.use();
         float lightAngle = 0.10f * deltaTime;
         float lPosx = lightPos.x;
         float lPosz = lightPos.z;
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        attenuationShader.setVec4("light.position", glm::vec4(camera.Position, 1.0));
-        attenuationShader.setVec3("light.direction", camera.Front);
-        attenuationShader.setFloat("light.cutOff", glm::cos(glm::radians(15.0f)));
-        attenuationShader.setFloat("light.outerCutOff", glm::cos(glm::radians(20.0f)));
-        attenuationShader.setVec3("viewPos", camera.Position);
+        //globalShader.setVec4("light.position", glm::vec4(camera.Position, 1.0));
+        //globalShader.setVec3("light.direction", camera.Front);
+        //globalShader.setFloat("light.cutOff", glm::cos(glm::radians(15.0f)));
+        //globalShader.setFloat("light.outerCutOff", glm::cos(glm::radians(20.0f)));
+        globalShader.setVec3("viewPos", camera.Position);
 
         // CUBES ROTATING
-        attenuationShader.use();
-        attenuationShader.setInt("material.diffuse" , 4);
-        attenuationShader.setInt("material.specular", 5);
-        attenuationShader.setInt("material.emission", 6);
+        globalShader.use();
+        globalShader.setInt("material.diffuse" , 4);
+        globalShader.setInt("material.specular", 5);
+        globalShader.setInt("material.emission", 6);
 
         float texMoveSpeed;
-        attenuationShader.setFloat("time", glfwGetTime());
-        attenuationShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
-        attenuationShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
+        globalShader.setFloat("time", glfwGetTime());
+        //globalShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
+        //globalShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 cubeModel = glm::mat4(1.0f);
-        unsigned int modelLoc    = glGetUniformLocation(attenuationShader.getShaderID(), "model");
-        unsigned int modelInvLoc = glGetUniformLocation(attenuationShader.getShaderID(), "modelInverse");
-        unsigned int viewLoc     = glGetUniformLocation(attenuationShader.getShaderID(), "view");
-        unsigned int projLoc     = glGetUniformLocation(attenuationShader.getShaderID(), "projection");
+        unsigned int modelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int modelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse");
+        unsigned int viewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int projLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
         glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
       
@@ -371,6 +404,7 @@ int main(){
         }
        
         // SCENARIO FLOOR
+        /*
         attenuationShader.use();
         attenuationShader.setInt("material.diffuse", 2);
         attenuationShader.setInt("material.specular", 2);
@@ -390,21 +424,45 @@ int main(){
         
         glBindVertexArray(floorVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        */
+
+        globalShader.use();
+        globalShader.setInt("material.diffuse", 2);
+        globalShader.setInt("material.specular", 2);
+        globalShader.setFloat("material.shininess", 16);
+        globalShader.setVec3("viewPos", camera.Position);
+
+        glm::mat4 floorModel= glm::mat4(1.0f);
+        floorModel = glm::translate(floorModel, glm::vec3(0.0f, -2.8f, 0.0f));
+        glm::mat4 floorModelInv = glm::inverse(floorModel);
+
+        unsigned int floorModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int floorViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int floorProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        unsigned int floorInvModelLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse"); 
+        glUniformMatrix4fv(floorModelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
+        glUniformMatrix4fv(floorViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(floorProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        glUniformMatrix4fv(floorInvModelLoc, 1, GL_FALSE, glm::value_ptr(floorModelInv));
+        
+        glBindVertexArray(floorVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 
         // SCENARIO WALLS
-        attenuationShader.use();
-        attenuationShader.setInt("material.diffuse", 2);
-        attenuationShader.setInt("material.specular", 2);
+        globalShader.use();
+        globalShader.setInt("material.diffuse", 2);
+        globalShader.setInt("material.specular", 2);
 
         for (int i = 0; i < 4; i++){
             glm::mat4 wallModel= glm::mat4(1.0f);
             wallModel= glm::rotate(wallModel, glm::radians(i * 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             wallModel= glm::translate(wallModel, glm::vec3(0.0f, -2.8f, -20.0f));
             glm::mat4 wallInvModel = glm::inverse(wallModel);
-            unsigned int wallInvModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "modelInverse");
-            unsigned int wallModelLoc = glGetUniformLocation(attenuationShader.getShaderID(), "model");
-            unsigned int wallViewLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "view");
-            unsigned int wallProjLoc  = glGetUniformLocation(attenuationShader.getShaderID(), "projection");
+            unsigned int wallInvModelLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse");
+            unsigned int wallModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+            unsigned int wallViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+            unsigned int wallProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
             glUniformMatrix4fv(wallInvModelLoc, 1, GL_FALSE, glm::value_ptr(wallInvModel));
             glUniformMatrix4fv(wallModelLoc, 1, GL_FALSE, glm::value_ptr(wallModel));
             glUniformMatrix4fv(wallViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
@@ -418,17 +476,22 @@ int main(){
         lightSrcShader.use();
         lightSrcShader.setVec3("lightColor", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
         glm::mat4 lightModel = glm::mat4(1.0f);
-        lightModel = glm::translate(lightModel, (glm::vec3)lightPos);
-        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+
         unsigned int lightModelLoc = glGetUniformLocation(lightSrcShader.getShaderID(), "model");
         unsigned int lightViewLoc  = glGetUniformLocation(lightSrcShader.getShaderID(), "view");
         unsigned int lightProjLoc  = glGetUniformLocation(lightSrcShader.getShaderID(), "projection");
-        glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
         glUniformMatrix4fv(lightViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(lightProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
 
-        glBindVertexArray(VAO[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < 4; i++){
+            lightModel = glm::mat4(1.0f);
+            lightModel = glm::translate(lightModel, pointLightPositions[i]);
+            lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+            glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
+            glBindVertexArray(VAO[0]);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
 
         // IMGUI WINDOW BUILD 
         ImGui::Begin("EDIT MODE");
