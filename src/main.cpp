@@ -267,19 +267,20 @@ int main(){
 
     globalShader.setFloat("pointLights[0].constant" , 1.0f); 
     globalShader.setFloat("pointLights[0].linear"   , 0.04f); 
-    globalShader.setFloat("pointLights[0].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[0].quadratic", 0.115f); 
     globalShader.setFloat("pointLights[1].constant" , 1.0f); 
     globalShader.setFloat("pointLights[1].linear"   , 0.04f); 
-    globalShader.setFloat("pointLights[1].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[1].quadratic", 0.115f); 
     globalShader.setFloat("pointLights[2].constant" , 1.0f); 
     globalShader.setFloat("pointLights[2].linear"   , 0.04f); 
-    globalShader.setFloat("pointLights[2].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[2].quadratic", 0.115f); 
     globalShader.setFloat("pointLights[3].constant" , 1.0f); 
     globalShader.setFloat("pointLights[3].linear"   , 0.04f); 
-    globalShader.setFloat("pointLights[3].quadratic", 0.015f); 
+    globalShader.setFloat("pointLights[3].quadratic", 0.115f); 
 
     glm::vec3 pointLightPositions[4] = {
         glm::vec3( 15.0f, 2.0f,  15.0f),
+        //glm::vec3( 0.0f, 0.3f,  -2.0f),
         glm::vec3( 15.0f, 2.0f, -15.0f),
         glm::vec3(-15.0f, 2.0f, -15.0f),
         glm::vec3(-15.0f, 2.0f,  15.0f)
@@ -374,8 +375,10 @@ int main(){
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        globalShader.setVec3("flashLight.position", camera.Position);
-        globalShader.setVec3("flashLight.direction", camera.Front);
+        //globalShader.setVec3("flashLight.position", camera.Position);
+        globalShader.setVec3("flashLight.position", glm::vec3(0.0f, 10.0f, -2.0f));
+        globalShader.setVec3("flashLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+        //globalShader.setVec3("flashLight.direction", camera.Front);
         globalShader.setFloat("flashLight.cutOff", glm::cos(glm::radians(15.0f)));
         globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
