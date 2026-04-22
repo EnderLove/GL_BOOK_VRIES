@@ -15,9 +15,12 @@
 #include "camera.h"
 #include "shader.h"
 
+#include "model.h"
+
 #include "load2DTexture.h"
 #include "models.h"
 #include "gameTextures.cpp"
+
 
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
@@ -243,6 +246,7 @@ int main(){
     //Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
     Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/flashFragmentShader.frag");
     Shader globalShader("../shaders/globalVertexShader.vert", "../shaders/globalFragmentShader.frag");
+    Shader modelShader("../shaders/modelVertexShader.vert", "../shaders/modelFragmentShader.frag");
 
     globalShader.use();
     // Directional Light
@@ -325,7 +329,10 @@ int main(){
     ImGui::StyleColorsDark();
 
     printf("%s\n", glGetString(GL_VERSION));
-    
+
+    std::string modelPath = "../resources/Models/backpack/backpack.obj";
+    Model guitar(modelPath);
+
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window);
@@ -480,6 +487,19 @@ int main(){
             glBindVertexArray(VAO[0]);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        modelShader.use();
+        glm::mat4 guitarModel = glm::mat4(1.0f);
+        guitarModel = glm::translate(guitarModel, glm::vec3(0.0f, 0.0f, 0.0f));
+        guitarModel = glm::translate(guitarModel, glm::vec3(0.0f, 2.0f, 0.0f));
+        //guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
+        unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
+        glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        guitar.draw(modelShader);
 
 
         // IMGUI WINDOW BUILD 

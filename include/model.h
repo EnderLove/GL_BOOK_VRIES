@@ -12,7 +12,7 @@ class Model{
     private:
         std::vector<Texture> textures_loaded;
     public:
-        Model(char *path);
+        Model(std::string const &path);
         void draw(Shader &shader);
 
     private:

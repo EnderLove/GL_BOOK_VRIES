@@ -1,6 +1,7 @@
 #include "model.h"
 
-Model::Model(char *path){
+Model::Model(std::string const &path){
+    printf("============ MODEL::PROCESS::START::FROM::(%s) ==============\n", path.c_str());
     loadModel(path);
 }
 
@@ -14,11 +15,13 @@ void Model::loadModel(std::string path){
     const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-        printf("ERROR::ASSIMP::%s\n", import.GetErrorString());
+        printf("\tERROR::ASSIMP::%s\n", import.GetErrorString());
         return;
+    } else {
+        printf("\tSUCCESS::ASSIMP::LOADED::MODEL::FROM::PATH::(%s)\n", path.c_str());
     }
     directory = path.substr(0, path.find_last_of('/'));
-
+    printf("\tDIRECTORY::PATH::(%s)\n", directory.c_str());
     processNode(scene->mRootNode, scene);
 }
 
@@ -81,7 +84,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene){
     return Mesh(vertices, indices, textures); 
 }
 
-unsigned int textureFromFile(const char *path, const std::string directory){
+unsigned int Model::textureFromFile(const char *path, const std::string directory){
     std::string filename = std::string(path);
     filename = directory + '/' + path;
 
@@ -90,7 +93,7 @@ unsigned int textureFromFile(const char *path, const std::string directory){
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-
+    
     if (data){
         GLenum format;
         if      (nrComponents == 1) format = GL_RED;
@@ -98,11 +101,20 @@ unsigned int textureFromFile(const char *path, const std::string directory){
         else if (nrComponents == 4) format = GL_RGBA;
 
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_INT, data); 
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data); 
         glGenerateMipmap(GL_TEXTURE_2D);
 
-            
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    } else {
+        printf("TEXTURE FAILED TO LOAD AT PATH: %s", path);
+        stbi_image_free(data);
     }
+    return textureID;
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName){
@@ -111,7 +123,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         aiString str;
         mat->GetTexture(type, i, &str);
         bool skip = false;
-
+        
         for (unsigned int j = 0; j < textures_loaded.size(); j++){
             if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0){
                 textures.push_back(textures_loaded[j]);
@@ -121,6 +133,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         }
 
         if (!skip){
+            printf("STR:: %s\n", str.C_Str());
             Texture texture;
             texture.id = textureFromFile(str.C_Str(), directory);
             texture.type = typeName;
@@ -131,5 +144,3 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     }
     return textures;
 }
-
-// TODO: IMPLEMENT THE PROCESS_MESH() 

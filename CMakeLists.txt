@@ -18,6 +18,8 @@ add_executable(test
     src/gameTextures.cpp
     src/camera.cpp
     src/glad.c
+    src/model.cpp
+    src/mesh.cpp
     imgui/imgui.cpp
     imgui/imgui_impl_glfw.cpp
     imgui/imgui_impl_opengl3.cpp
@@ -45,4 +47,5 @@ target_link_libraries(test
     ${CMAKE_THREAD_LIBS_INIT} 
     ${CMAKE_DL_LIBS} 
     GL
+    assimp
 )
