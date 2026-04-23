@@ -54,7 +54,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
     std::vector<Vertex>  vertices;
     std::vector<Texture> textures;
     std::vector<unsigned int> indices;
-
+    printf("NUM VERTICES MESH: %d\n", mesh->mNumVertices);
     for (unsigned int i = 0; i < mesh->mNumVertices; i++){
         Vertex vertex;
         glm::vec3 vector; 
@@ -64,7 +64,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
         //vertex.position = glm::vec3(transform * glm::vec4(vector, 1.0f)); 
         vertex.position = vector;
         
-        //printf("vertex.x: %f | vertex.y: %f | vertex.z: %f\n", vertex.position.x, vertex.position.y, vertex.position.z);
+        printf("VERTEX DATA[%d] :: vertex.x: %f | vertex.y: %f | vertex.z: %f\n", i, vertex.position.x, vertex.position.y, vertex.position.z);
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
@@ -83,9 +83,11 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
         }
         vertices.push_back(vertex);
     }
-
+    
+    printf("FACES NUM: %d\n", mesh->mNumFaces);
     for (unsigned int i = 0; i < mesh->mNumFaces; i++){
         aiFace face = mesh->mFaces[i];
+        printf("FACES INDICES: %d\n", face.mNumIndices);
         for (unsigned int j = 0; j < face.mNumIndices; j++){
             indices.push_back(face.mIndices[j]);
         }

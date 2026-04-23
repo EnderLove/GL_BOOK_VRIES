@@ -21,15 +21,14 @@ void Mesh::setupMesh(){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices), &indices[0], GL_STATIC_DRAW);
 
     // Vertex position 
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     // Vertex normals
+    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
     // Texture coordinates 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 
     glBindVertexArray(0);
 }
@@ -45,7 +44,7 @@ void Mesh::draw(Shader &shader){
 
         if (name == "texture_diffuse")
             number = std::to_string(diffuseNr++);
-        if (name == "texture_specular")
+        else if (name == "texture_specular")
             number = std::to_string(specularNr++);
 
         shader.setInt(("material." + name + number).c_str(), i);
