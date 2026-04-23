@@ -330,7 +330,13 @@ int main(){
 
     printf("%s\n", glGetString(GL_VERSION));
 
-    std::string modelPath = "../resources/Models/backpack/backpack.obj";
+    std::string modelPath;
+    modelPath = "../resources/Models/ferrari-288-gto/source/ferrari 288 gto.obj";
+    modelPath = "../resources/Models/future/cdp-test-7.obj";
+    modelPath = "../resources/Models/Heart/heart.obj";
+    modelPath = "../resources/Models/backpack/backpack.obj";
+    modelPath = "../resources/Models/Utah_teapot/tah-teapot.obj";
+    modelPath = "../resources/Models/Man/man.obj";
     Model guitar(modelPath);
 
     while (!glfwWindowShouldClose(window)){
@@ -490,8 +496,8 @@ int main(){
 
         modelShader.use();
         glm::mat4 guitarModel = glm::mat4(1.0f);
-        guitarModel = glm::translate(guitarModel, glm::vec3(0.0f, 0.0f, 0.0f));
-        guitarModel = glm::translate(guitarModel, glm::vec3(0.0f, 2.0f, 0.0f));
+        //guitarModel = glm::translate(guitarModel, glm::vec3(-5.0f, -2.0f, 17.0f));
+        guitarModel = glm::translate(guitarModel, glm::vec3(0.0f, 0.0f, -15.0f));
         //guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
         unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
         unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");

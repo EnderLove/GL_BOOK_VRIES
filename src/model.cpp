@@ -22,22 +22,35 @@ void Model::loadModel(std::string path){
     }
     directory = path.substr(0, path.find_last_of('/'));
     printf("\tDIRECTORY::PATH::(%s)\n", directory.c_str());
-    processNode(scene->mRootNode, scene);
+    processNode(scene->mRootNode, scene, glm::mat4(1.0f));
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene){
+void Model::processNode(aiNode *node, const aiScene *scene, glm::mat4 parentTransform){
+    aiMatrix4x4 m = node->mTransformation;
+    glm::mat4 nodeTransform = glm::mat4(
+        m.a1, m.b1, m.c1, m.d1,
+        m.a2, m.b2, m.c2, m.d2,
+        m.a3, m.b3, m.c3, m.d3,
+        m.a4, m.b4, m.c4, m.d4
+        );
+
+    glm::mat4 globalTransform = parentTransform * nodeTransform;
+
     // Process all the node's meshes (if any)
     for(unsigned int i = 0; i < node->mNumMeshes; i++){
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
+        meshes.push_back(processMesh(mesh, scene, globalTransform));
+        //printf("X Pos: %f\n", meshes[i].vertices[3].position.x);
     }
     // Recursive for each children 
     for(unsigned int i = 0; i < node->mNumChildren; i++){
-        processNode(node->mChildren[i], scene);
+        processNode(node->mChildren[i], scene, globalTransform);
     }
 }
 
-Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene){
+Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform){
+    glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(transform)));
+
     std::vector<Vertex>  vertices;
     std::vector<Texture> textures;
     std::vector<unsigned int> indices;
@@ -48,17 +61,22 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene){
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
+        //vertex.position = glm::vec3(transform * glm::vec4(vector, 1.0f)); 
         vertex.position = vector;
+        
+        //printf("vertex.x: %f | vertex.y: %f | vertex.z: %f\n", vertex.position.x, vertex.position.y, vertex.position.z);
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
+        //vertex.normal = glm::normalize(normalMatrix * vector);
         vertex.normal = vector;
 
         if (mesh->mTextureCoords[0]){
             glm::vec2 vec;
             vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
+            //printf("textcoords: x: %f | y: %f\n", vec.x, vec.y);
             vertex.texCoords = vec; 
         } else {
             vertex.texCoords = glm::vec2(0.0f, 0.0f);
@@ -133,7 +151,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         }
 
         if (!skip){
-            printf("STR:: %s\n", str.C_Str());
+            printf("\tSTR::%s\n", str.C_Str());
             Texture texture;
             texture.id = textureFromFile(str.C_Str(), directory);
             texture.type = typeName;

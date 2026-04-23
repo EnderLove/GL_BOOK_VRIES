@@ -70,3 +70,6 @@ DebugPics/
 # test output & cache
 Testing/
 .cache/
+
+# Compresed files 
+*.zip

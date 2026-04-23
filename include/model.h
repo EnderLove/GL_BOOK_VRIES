@@ -21,8 +21,8 @@ class Model{
         std::string directory;
 
         void loadModel(std::string path);
-        void processNode(aiNode *node, const aiScene *scene);
-        Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+        void processNode(aiNode *node, const aiScene *scene, glm::mat4 parentTransform);
+        Mesh processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform);
        
         unsigned int textureFromFile(const char *path, const std::string directory);
         std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
