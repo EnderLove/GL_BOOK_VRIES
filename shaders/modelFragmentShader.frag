@@ -41,7 +41,7 @@ void main()
     // Specular as a mask
     //vec4 specular = texture(material.texture_specular1, TexCoords);
 
-    FragColor = vec4(1.0, 0.3, 0.7, 1.0);
+    FragColor =  diffuse;
 }
 
 

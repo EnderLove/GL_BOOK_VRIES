@@ -40,7 +40,6 @@ void Model::processNode(aiNode *node, const aiScene *scene, glm::mat4 parentTran
     for(unsigned int i = 0; i < node->mNumMeshes; i++){
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene, globalTransform));
-        //printf("X Pos: %f\n", meshes[i].vertices[3].position.x);
     }
     // Recursive for each children 
     for(unsigned int i = 0; i < node->mNumChildren; i++){
@@ -54,29 +53,24 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
     std::vector<Vertex>  vertices;
     std::vector<Texture> textures;
     std::vector<unsigned int> indices;
-    printf("NUM VERTICES MESH: %d\n", mesh->mNumVertices);
+
     for (unsigned int i = 0; i < mesh->mNumVertices; i++){
         Vertex vertex;
         glm::vec3 vector; 
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
-        //vertex.position = glm::vec3(transform * glm::vec4(vector, 1.0f)); 
         vertex.position = vector;
-        
-        printf("VERTEX DATA[%d] :: vertex.x: %f | vertex.y: %f | vertex.z: %f\n", i, vertex.position.x, vertex.position.y, vertex.position.z);
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
-        //vertex.normal = glm::normalize(normalMatrix * vector);
         vertex.normal = vector;
 
         if (mesh->mTextureCoords[0]){
             glm::vec2 vec;
             vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
-            //printf("textcoords: x: %f | y: %f\n", vec.x, vec.y);
             vertex.texCoords = vec; 
         } else {
             vertex.texCoords = glm::vec2(0.0f, 0.0f);
@@ -84,10 +78,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
         vertices.push_back(vertex);
     }
     
-    printf("FACES NUM: %d\n", mesh->mNumFaces);
     for (unsigned int i = 0; i < mesh->mNumFaces; i++){
         aiFace face = mesh->mFaces[i];
-        printf("FACES INDICES: %d\n", face.mNumIndices);
         for (unsigned int j = 0; j < face.mNumIndices; j++){
             indices.push_back(face.mIndices[j]);
         }

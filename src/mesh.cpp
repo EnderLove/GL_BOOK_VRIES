@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "KHR/khrplatform.h"
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures){
     this->vertices = vertices;
@@ -15,10 +16,10 @@ void Mesh::setupMesh(){
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
     // Vertex position 
     glEnableVertexAttribArray(0);
@@ -47,10 +48,14 @@ void Mesh::draw(Shader &shader){
         else if (name == "texture_specular")
             number = std::to_string(specularNr++);
 
-        shader.setInt(("material." + name + number).c_str(), i);
+        //printf("shader name: material.%s\n", (name + number).c_str());
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        //printf("TEXTURE ID: %d\n", textures[i].id);
+        //glBindTexture(GL_TEXTURE_2D, 0);
+        shader.setInt(("material." + name + number).c_str(), i);
     }
     glActiveTexture(GL_TEXTURE0);
+
 
     // Draw mesh proc
     glBindVertexArray(VAO);

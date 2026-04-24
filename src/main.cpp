@@ -245,7 +245,7 @@ int main(){
     Shader materialShader("../shaders/materialVertexShader.vert", "../shaders/materialFragmentShader.frag");
     //Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
     Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/flashFragmentShader.frag");
-    Shader globalShader("../shaders/globalVertexShader.vert", "../shaders/globalFragmentShader.frag");
+    Shader globalShader("../shaders/globalVertexShader.vert", "../shaders/globalFragmentShader1.frag");
     Shader modelShader("../shaders/modelVertexShader.vert", "../shaders/modelFragmentShader.frag");
 
     globalShader.use();
@@ -304,22 +304,15 @@ int main(){
     globalShader.setFloat("flashLight.linear"   , 0.04f);
     globalShader.setFloat("flashLight.quadratic", 0.015f);
 
+    globalShader.setVec3("flashLight.position", glm::vec3(0.0f, 10.0f, -2.0f));
+    globalShader.setVec3("flashLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
 
     glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
 
     glm::vec3 attenuationConfig = glm::vec3(1.0f, 0.04f, 0.015f);
-    attenuationShader.use();
-    attenuationShader.setInt("material.diffuse" , 4);
-    attenuationShader.setInt("material.specular", 5);
-    attenuationShader.setInt("material.emission", 6);
-    attenuationShader.setVec3("light.ambient" , glm::vec3(1.0f, 1.0f, 1.0f));
-    attenuationShader.setVec3("light.diffuse" , glm::vec3(1.0f, 1.0f, 1.0f));
-    attenuationShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    attenuationShader.setFloat("material.shininess", 256.0f); 
-    attenuationShader.setAttenuation(attenuationConfig);
-
     float colorLight[4] = {1, 1, 1, 1};
     float alphaBlendVal = 0;
+    bool cameraFlashlight = false;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -330,14 +323,13 @@ int main(){
 
     printf("%s\n", glGetString(GL_VERSION));
 
-    std::string modelPath;
-    modelPath = "../resources/Models/ferrari-288-gto/source/ferrari 288 gto.obj";
-    modelPath = "../resources/Models/future/cdp-test-7.obj";
-    modelPath = "../resources/Models/Heart/heart.obj";
-    modelPath = "../resources/Models/backpack/backpack.obj";
-    modelPath = "../resources/Models/Utah_teapot/tah-teapot.obj";
-    modelPath = "../resources/Models/Man/man.obj";
-    Model guitar(modelPath);
+    std::string backpackModelPath, teapotModelPath, caineModelPath;
+    teapotModelPath = "../resources/Models/Utah_teapot/Utah-teapot.obj";
+    backpackModelPath = "../resources/Models/backpack/backpack.obj";
+    caineModelPath = "../resources/Models/Amazing/Caine.glb";
+    Model guitar(backpackModelPath);
+    Model teapot(teapotModelPath);
+    //Model caine(caineModelPath);
 
     while (!glfwWindowShouldClose(window)){
         processInput(window);
@@ -388,18 +380,59 @@ int main(){
         lightPos.x = (cos(lightAngle) * lPosx) + (-sin(lightAngle) * lPosz);
         lightPos.z = (sin(lightAngle) * lPosx) + ( cos(lightAngle) * lPosz);
         if (lightPos.y <= -1.0f) lightPos.x = -35.0f;
-        //globalShader.setVec3("flashLight.position", camera.Position);
-        globalShader.setVec3("flashLight.position", glm::vec3(0.0f, 10.0f, -2.0f));
-        globalShader.setVec3("flashLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
-        //globalShader.setVec3("flashLight.direction", camera.Front);
         globalShader.setFloat("flashLight.cutOff", glm::cos(glm::radians(15.0f)));
         globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
 
+        globalShader.use();
+        glm::mat4 guitarModel = glm::mat4(1.0f);
+        //guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+        guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, 0.0f, 12.0f));
+        guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
+        guitarModel = glm::rotate(guitarModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
+        glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        guitar.draw(globalShader);
+   
+        globalShader.use();
+        glm::mat4 teapotModel = glm::mat4(1.0f);
+        //teapotModel = glm::translate(teapotModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+        teapotModel = glm::translate(teapotModel, glm::vec3(14.0f, -2.0f, 14.0f));
+        teapotModel = glm::scale    (teapotModel, glm::vec3(9.0f, 9.0f, 9.0f));
+        teapotModel = glm::rotate(teapotModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //teapotModel = glm::rotate(teapotModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+        unsigned int teapotModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int teapotViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int teapotProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        glUniformMatrix4fv(teapotModelLoc, 1, GL_FALSE, glm::value_ptr(teapotModel));
+        glUniformMatrix4fv(teapotViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(teapotProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        teapot.draw(globalShader);
+
+        //globalShader.use();
+        //glm::mat4 caineModel = glm::mat4(1.0f);
+        ////caineModel = glm::translate(caineModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+        //caineModel = glm::translate(caineModel, glm::vec3(14.0f, -2.0f, 14.0f));
+        //caineModel = glm::scale    (caineModel, glm::vec3(9.0f, 9.0f, 9.0f));
+        //caineModel = glm::rotate(caineModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ////caineModel = glm::rotate(caineModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+        //unsigned int caineModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        //unsigned int caineViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        //unsigned int caineProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        //glUniformMatrix4fv(caineModelLoc, 1, GL_FALSE, glm::value_ptr(caineModel));
+        //glUniformMatrix4fv(caineViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        //glUniformMatrix4fv(caineProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        //caine.draw(globalShader);
+
+
         // CUBES ROTATING
         globalShader.use();
-        globalShader.setInt("material.diffuse" , 4);
-        globalShader.setInt("material.specular", 5);
+        globalShader.setInt("material.texture_diffuse1" , 4);
+        globalShader.setInt("material.texture_specular1", 5);
         globalShader.setInt("material.emission", 6);
 
         float texMoveSpeed;
@@ -431,8 +464,8 @@ int main(){
        
         // SCENARIO FLOOR
         globalShader.use();
-        globalShader.setInt("material.diffuse", 2);
-        globalShader.setInt("material.specular", 2);
+        globalShader.setInt("material.texture_diffuse1", 2);
+        globalShader.setInt("material.texture_specular1", 2);
         globalShader.setFloat("material.shininess", 16);
 
         glm::mat4 floorModel= glm::mat4(1.0f);
@@ -453,8 +486,8 @@ int main(){
 
         // SCENARIO WALLS
         globalShader.use();
-        globalShader.setInt("material.diffuse", 2);
-        globalShader.setInt("material.specular", 2);
+        globalShader.setInt("material.texture_diffuse1", 2);
+        globalShader.setInt("material.texture.specular1", 2);
 
         for (int i = 0; i < 4; i++){
             glm::mat4 wallModel= glm::mat4(1.0f);
@@ -494,19 +527,6 @@ int main(){
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        modelShader.use();
-        glm::mat4 guitarModel = glm::mat4(1.0f);
-        //guitarModel = glm::translate(guitarModel, glm::vec3(-5.0f, -2.0f, 17.0f));
-        guitarModel = glm::translate(guitarModel, glm::vec3(0.0f, 0.0f, -15.0f));
-        //guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
-        unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
-        glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        guitar.draw(modelShader);
-
 
         // IMGUI WINDOW BUILD 
         ImGui::Begin("EDIT MODE");
@@ -516,11 +536,18 @@ int main(){
         ImGui::SliderFloat("Attenuation Quad"  , &attenuationConfig.z, 0.0f, 1.0f);
         ImGui::Text("LIGHT COLOR");
         ImGui::ColorEdit4("Light Color", colorLight);
+        ImGui::Checkbox("FlashLight", &cameraFlashlight);
         ImGui::End();
         attenuationShader.use();
         attenuationShader.setAttenuation(attenuationConfig);
         attenuationShader.setVec3("light.diffuse", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
         attenuationShader.setVec3("light.ambient", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
+
+        globalShader.use();
+        if (cameraFlashlight){
+            globalShader.setVec3("flashLight.position", camera.Position);
+            globalShader.setVec3("flashLight.direction", camera.Front);
+        }
 
         // IMGUI WINDOW RENDER
         ImGui::Render();
