@@ -20,6 +20,7 @@ add_executable(test
     src/glad.c
     src/model.cpp
     src/mesh.cpp
+    src/editModeUI.cpp
     imgui/imgui.cpp
     imgui/imgui_impl_glfw.cpp
     imgui/imgui_impl_opengl3.cpp

@@ -28,6 +28,10 @@ class Shader{
 
         void setAttenuation (glm::vec3 value) const;
         void setAttenuation (glm::vec3 value, std::string nLight) const;
+        void setAttenuation (glm::vec3 value, std::string structType, std::string type) const;
+
+        void setAttenuationByStruct (glm::vec3 value, std::string structType) const;
+        void setColorLightByStruct(glm::vec3 value, std::string structType, std::string type) const;
         void setPointColorLightN (glm::vec3 value, std::string nLight, std::string type) const;
 };
 

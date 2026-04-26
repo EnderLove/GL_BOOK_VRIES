@@ -119,15 +119,28 @@ void Shader::setAttenuation(glm::vec3 value, std::string nLight) const {
 
 void Shader::setPointColorLightN(glm::vec3 value, std::string nLight, std::string type) const {
     std::string lightType = "pointLights[" + nLight + "]." + type;
-    //std::string diffuse  = "pointLights[" + nLight + "].diffuse";
-    //std::string specular = "pointLights[" + nLight + "].specular";
-
     glUniform3f(glGetUniformLocation(ID, lightType.c_str()) , value.x, value.y, value.z);
-    //glUniform1f(glGetUniformLocation(ID, diffuse.c_str()) , value.y);
-    //glUniform1f(glGetUniformLocation(ID, specular.c_str()), value.z);
 }
 
+void Shader::setColorLightByStruct(glm::vec3 value, std::string structType, std::string type) const {
+    std::string lightType = structType + "." + type; 
+    glUniform3f(glGetUniformLocation(ID, lightType.c_str()) , value.x, value.y, value.z);
+}
+void Shader::setAttenuation(glm::vec3 value, std::string structType, std::string type) const {
+    std::string foo = structType + "." + type;
+    glUniform1f(glGetUniformLocation(ID, foo.c_str()), value.x);
+    glUniform1f(glGetUniformLocation(ID, foo.c_str()), value.y);
+    glUniform1f(glGetUniformLocation(ID, foo.c_str()), value.z);
+}
 
+void Shader::setAttenuationByStruct(glm::vec3 value, std::string structType) const {
+    std::string constant  = structType + ".constant";
+    std::string linear    = structType + ".linear";
+    std::string quadratic = structType + ".quadratic";
+    glUniform1f(glGetUniformLocation(ID, constant.c_str()), value.x);
+    glUniform1f(glGetUniformLocation(ID, linear.c_str()), value.y);
+    glUniform1f(glGetUniformLocation(ID, quadratic.c_str()), value.z);
+}
 
 
 
