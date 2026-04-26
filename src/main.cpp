@@ -1,6 +1,6 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+//#include "imgui.h"
+//#include "imgui_impl_glfw.h"
+//#include "imgui_impl_opengl3.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -13,6 +13,7 @@
 #include <math.h>
 
 #include "camera.h"
+#include "imgui.h"
 #include "shader.h"
 
 #include "model.h"
@@ -21,6 +22,7 @@
 #include "models.h"
 #include "gameTextures.cpp"
 
+#include "editModeUI.h"
 
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
@@ -309,7 +311,17 @@ int main(){
 
     glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
 
-    glm::vec3 attenuationConfig = glm::vec3(1.0f, 0.04f, 0.015f);
+    glm::vec3 attenuationConfig = glm::vec3(1.0f, 0.04f, 0.115f);
+    glm::vec3 attenuationConfig1 = glm::vec3(1.0f, 0.04f, 0.115f);
+    glm::vec3 attenuationConfig2 = glm::vec3(1.0f, 0.04f, 0.115f);
+    glm::vec3 attenuationConfig3 = glm::vec3(1.0f, 0.04f, 0.115f);
+    glm::vec3 attenuationConfig4 = glm::vec3(1.0f, 0.04f, 0.115f);
+
+    float colorLightP0[4] = {1, 1, 1, 1};
+    float colorLightP1[4] = {1, 1, 1, 1};
+    float colorLightP2[4] = {1, 1, 1, 1};
+    float colorLightP3[4] = {1, 1, 1, 1};
+    
     float colorLight[4] = {1, 1, 1, 1};
     float alphaBlendVal = 0;
     bool cameraFlashlight = false;
@@ -320,6 +332,11 @@ int main(){
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 430 core");
     ImGui::StyleColorsDark();
+    bool show_demo_window = true;
+    bool pointLight1 = false;
+    bool pointLight2 = false;
+    bool pointLight3 = false;
+    bool pointLight4 = false;
 
     printf("%s\n", glGetString(GL_VERSION));
 
@@ -327,8 +344,8 @@ int main(){
     teapotModelPath = "../resources/Models/Utah_teapot/Utah-teapot.obj";
     backpackModelPath = "../resources/Models/backpack/backpack.obj";
     caineModelPath = "../resources/Models/Amazing/Caine.glb";
-    Model guitar(backpackModelPath);
-    Model teapot(teapotModelPath);
+    //Model guitar(backpackModelPath);
+    //Model teapot(teapotModelPath);
     //Model caine(caineModelPath);
 
     while (!glfwWindowShouldClose(window)){
@@ -384,34 +401,34 @@ int main(){
         globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
 
-        globalShader.use();
-        glm::mat4 guitarModel = glm::mat4(1.0f);
-        //guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, -2.8f, 10.0f));
-        guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, 0.0f, 12.0f));
-        guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
-        guitarModel = glm::rotate(guitarModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
-        glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        guitar.draw(globalShader);
+       // globalShader.use();
+       // glm::mat4 guitarModel = glm::mat4(1.0f);
+       // //guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+       // guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, 0.0f, 12.0f));
+       // guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
+       // guitarModel = glm::rotate(guitarModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+       // unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+       // unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+       // unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+       // glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
+       // glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+       // glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+       // guitar.draw(globalShader);
    
-        globalShader.use();
-        glm::mat4 teapotModel = glm::mat4(1.0f);
-        //teapotModel = glm::translate(teapotModel, glm::vec3(-15.0f, -2.8f, 10.0f));
-        teapotModel = glm::translate(teapotModel, glm::vec3(14.0f, -2.0f, 14.0f));
-        teapotModel = glm::scale    (teapotModel, glm::vec3(9.0f, 9.0f, 9.0f));
-        teapotModel = glm::rotate(teapotModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //teapotModel = glm::rotate(teapotModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
-        unsigned int teapotModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int teapotViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int teapotProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(teapotModelLoc, 1, GL_FALSE, glm::value_ptr(teapotModel));
-        glUniformMatrix4fv(teapotViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(teapotProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        teapot.draw(globalShader);
+       // globalShader.use();
+       // glm::mat4 teapotModel = glm::mat4(1.0f);
+       // //teapotModel = glm::translate(teapotModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+       // teapotModel = glm::translate(teapotModel, glm::vec3(14.0f, -2.0f, 14.0f));
+       // teapotModel = glm::scale    (teapotModel, glm::vec3(9.0f, 9.0f, 9.0f));
+       // teapotModel = glm::rotate(teapotModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+       // //teapotModel = glm::rotate(teapotModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+       // unsigned int teapotModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+       // unsigned int teapotViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+       // unsigned int teapotProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+       // glUniformMatrix4fv(teapotModelLoc, 1, GL_FALSE, glm::value_ptr(teapotModel));
+       // glUniformMatrix4fv(teapotViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+       // glUniformMatrix4fv(teapotProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+       // teapot.draw(globalShader);
 
         //globalShader.use();
         //glm::mat4 caineModel = glm::mat4(1.0f);
@@ -427,7 +444,6 @@ int main(){
         //glUniformMatrix4fv(caineViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         //glUniformMatrix4fv(caineProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
         //caine.draw(globalShader);
-
 
         // CUBES ROTATING
         globalShader.use();
@@ -537,12 +553,70 @@ int main(){
         ImGui::Text("LIGHT COLOR");
         ImGui::ColorEdit4("Light Color", colorLight);
         ImGui::Checkbox("FlashLight", &cameraFlashlight);
+
+        ImGui::Separator();
+        ImGui::Checkbox("1", &pointLight1);
+        ImGui::SameLine();
+        ImGui::Checkbox("2", &pointLight2);
+        ImGui::SameLine();
+        ImGui::Checkbox("3", &pointLight3);
+        ImGui::SameLine();
+        ImGui::Checkbox("4", &pointLight4);
+
+        ImGui::Separator();
+        if (pointLight1){
+            ImGui::Text("PointLight_1");
+            ImGui::SliderFloat("Const", &attenuationConfig1.x, 0.0f, 2.0f);    
+            ImGui::SliderFloat("Linear", &attenuationConfig1.y, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig1.z, 0.0f, 1.0f);    
+            ImGui::ColorEdit4("Color", colorLightP0);
+        }
+        if (pointLight2){
+            ImGui::Text("PointLight_2");
+            ImGui::SliderFloat("Const", &attenuationConfig2.x, 0.0f, 2.0f);    
+            ImGui::SliderFloat("Linear", &attenuationConfig2.y, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig2.z, 0.0f, 1.0f);    
+            ImGui::ColorEdit4("Color", colorLightP1);
+        }
+        if (pointLight3){
+            ImGui::SliderFloat("Const", &attenuationConfig3.x, 0.0f, 2.0f);    
+            ImGui::SliderFloat("Linear", &attenuationConfig3.y, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig3.z, 0.0f, 1.0f);    
+            ImGui::ColorEdit4("Color", colorLightP2);
+        }
+        if (pointLight4){
+            ImGui::Text("PointLight_4");
+            ImGui::SliderFloat("Const", &attenuationConfig4.x, 0.0f, 2.0f);    
+            ImGui::SliderFloat("Linear", &attenuationConfig4.y, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig4.z, 0.0f, 1.0f);    
+            ImGui::ColorEdit4("Color", colorLightP3);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
         ImGui::End();
+
+
+        globalShader.use();
+        globalShader.setAttenuation(attenuationConfig1, "0");
+        globalShader.setAttenuation(attenuationConfig2, "1");
+        globalShader.setAttenuation(attenuationConfig3, "2");
+        globalShader.setAttenuation(attenuationConfig4, "3");
+
+        globalShader.setPointColorLightN(glm::vec3(colorLightP0[0], colorLightP0[1], colorLightP0[2]), "0");
+        globalShader.setPointColorLightN(glm::vec3(colorLightP1[0], colorLightP1[1], colorLightP1[2]), "1");
+        globalShader.setPointColorLightN(glm::vec3(colorLightP2[0], colorLightP2[1], colorLightP2[2]), "2");
+        globalShader.setPointColorLightN(glm::vec3(colorLightP3[0], colorLightP3[1], colorLightP3[2]), "3");
+
+
+
+
         attenuationShader.use();
         attenuationShader.setAttenuation(attenuationConfig);
         attenuationShader.setVec3("light.diffuse", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
         attenuationShader.setVec3("light.ambient", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
-
+        
         globalShader.use();
         if (cameraFlashlight){
             globalShader.setVec3("flashLight.position", camera.Position);

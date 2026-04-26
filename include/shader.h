@@ -27,6 +27,8 @@ class Shader{
         void setVec4 (const std::string name, glm::vec4 value) const;
 
         void setAttenuation (glm::vec3 value) const;
+        void setAttenuation (glm::vec3 value, std::string nLight) const;
+        void setPointColorLightN (glm::vec3 value, std::string nLight) const;
 };
 
 #endif // !SHADER_H

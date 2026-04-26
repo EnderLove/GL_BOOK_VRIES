@@ -107,7 +107,25 @@ void Shader::setAttenuation(glm::vec3 value) const {
     glUniform1f(glGetUniformLocation(ID, "light.quadratic"), value.z);
 }
 
+void Shader::setAttenuation(glm::vec3 value, std::string nLight) const {
+    std::string constant  = "pointLights[" + nLight + "].constant";
+    std::string linear    = "pointLights[" + nLight + "].linear";
+    std::string quadratic = "pointLights[" + nLight + "].quadratic";
 
+    glUniform1f(glGetUniformLocation(ID, constant.c_str()) , value.x);
+    glUniform1f(glGetUniformLocation(ID, linear.c_str())   , value.y);
+    glUniform1f(glGetUniformLocation(ID, quadratic.c_str()), value.z);
+}
+
+void Shader::setPointColorLightN(glm::vec3 value, std::string nLight) const {
+    std::string ambient  = "pointLights[" + nLight + "].ambient";
+    std::string diffuse  = "pointLights[" + nLight + "].diffuse";
+    std::string specular = "pointLights[" + nLight + "].specular";
+
+    glUniform1f(glGetUniformLocation(ID, ambient.c_str()) , value.x);
+    glUniform1f(glGetUniformLocation(ID, diffuse.c_str()) , value.y);
+    glUniform1f(glGetUniformLocation(ID, specular.c_str()), value.z);
+}
 
 
 
