@@ -12,7 +12,7 @@ void Model::draw(Shader &shader){
 
 void Model::loadModel(std::string path){
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
         printf("\tERROR::ASSIMP::%s\n", import.GetErrorString());
@@ -47,6 +47,7 @@ void Model::processNode(aiNode *node, const aiScene *scene, glm::mat4 parentTran
     }
 }
 
+// TODO VERIFY CALCULATIONS FOR THE NORMALS
 Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform){
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(transform)));
 
@@ -60,12 +61,14 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
-        vertex.position = vector;
+        //vertex.position = vector;
+        vertex.position = glm::vec3(transform * glm::vec4(vector, 1.0f));
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
-        vertex.normal = vector;
+        //vertex.normal = vector;
+        vertex.normal = glm::normalize(normalMatrix * vector);
 
         if (mesh->mTextureCoords[0]){
             glm::vec2 vec;

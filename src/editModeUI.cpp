@@ -21,6 +21,11 @@ void EditMode::refreshFrame(){
     ImGui::NewFrame();
 }
 
+void EditMode::renderUI(){
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 void EditMode::modifyShader(Shader &shader, Camera &camera){
 
     ImGui::Begin("EDIT MODE");
@@ -96,32 +101,4 @@ void EditMode::modifyShader(Shader &shader, Camera &camera){
         // IMGUI WINDOW RENDER
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-    /*
-    ImGui::Begin("EDIT MODE");
-    ImGui::Text("ATTENUATION CONFIGURATION");
-    ImGui::SliderFloat("Attenuation Const" , &attenuationConfig.x, 0.0f, 2.0f);
-    ImGui::SliderFloat("Attenuation Linear", &attenuationConfig.y, 0.0f, 1.0f);
-    ImGui::SliderFloat("Attenuation Quad"  , &attenuationConfig.z, 0.0f, 1.0f);
-    ImGui::Text("LIGHT COLOR");
-    ImGui::ColorEdit4("Light Color", colorLight);
-    ImGui::Checkbox("FlashLight", &cameraFlashlight);
-    ImGui::End();
-    
-    shader.use();
-    shader.setAttenuation(attenuationConfig);
-    shader.setVec3("light.diffuse", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
-    shader.setVec3("light.ambient", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
-
-    shader.use();
-    if (cameraFlashlight){
-        shader.setVec3("flashLight.position", camera.Position);
-        shader.setVec3("flashLight.direction", camera.Front);
-    }
-
-    // IMGUI WINDOW RENDER
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    */
 }

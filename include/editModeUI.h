@@ -38,6 +38,7 @@ class EditMode{
         
         void modifyShader(Shader &shader, Camera &camera);
         void refreshFrame();
+        void renderUI();
 
 
 };
