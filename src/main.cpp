@@ -546,12 +546,6 @@ int main(){
 
         // IMGUI WINDOW BUILD 
         ImGui::Begin("EDIT MODE");
-        ImGui::Text("ATTENUATION CONFIGURATION");
-        ImGui::SliderFloat("Attenuation Const" , &attenuationConfig.x, 0.0f, 2.0f);
-        ImGui::SliderFloat("Attenuation Linear", &attenuationConfig.y, 0.0f, 1.0f);
-        ImGui::SliderFloat("Attenuation Quad"  , &attenuationConfig.z, 0.0f, 1.0f);
-        ImGui::Text("LIGHT COLOR");
-        ImGui::ColorEdit4("Light Color", colorLight);
         ImGui::Checkbox("FlashLight", &cameraFlashlight);
 
         ImGui::Separator();
@@ -569,34 +563,31 @@ int main(){
             ImGui::SliderFloat("Const", &attenuationConfig1.x, 0.0f, 2.0f);    
             ImGui::SliderFloat("Linear", &attenuationConfig1.y, 0.0f, 1.0f);    
             ImGui::SliderFloat("Quadratic", &attenuationConfig1.z, 0.0f, 1.0f);    
-            ImGui::ColorEdit4("Color", colorLightP0);
+            ImGui::ColorEdit4("Color1", colorLightP0);
         }
         if (pointLight2){
             ImGui::Text("PointLight_2");
             ImGui::SliderFloat("Const", &attenuationConfig2.x, 0.0f, 2.0f);    
             ImGui::SliderFloat("Linear", &attenuationConfig2.y, 0.0f, 1.0f);    
             ImGui::SliderFloat("Quadratic", &attenuationConfig2.z, 0.0f, 1.0f);    
-            ImGui::ColorEdit4("Color", colorLightP1);
+            ImGui::ColorEdit4("Color2", colorLightP1);
         }
         if (pointLight3){
             ImGui::SliderFloat("Const", &attenuationConfig3.x, 0.0f, 2.0f);    
             ImGui::SliderFloat("Linear", &attenuationConfig3.y, 0.0f, 1.0f);    
             ImGui::SliderFloat("Quadratic", &attenuationConfig3.z, 0.0f, 1.0f);    
-            ImGui::ColorEdit4("Color", colorLightP2);
+            ImGui::ColorEdit4("Color3", colorLightP2);
         }
         if (pointLight4){
             ImGui::Text("PointLight_4");
             ImGui::SliderFloat("Const", &attenuationConfig4.x, 0.0f, 2.0f);    
             ImGui::SliderFloat("Linear", &attenuationConfig4.y, 0.0f, 1.0f);    
             ImGui::SliderFloat("Quadratic", &attenuationConfig4.z, 0.0f, 1.0f);    
-            ImGui::ColorEdit4("Color", colorLightP3);
+            ImGui::ColorEdit4("Color4", colorLightP3);
         }
-
         ImGui::Separator();
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-
         ImGui::End();
-
 
         globalShader.use();
         globalShader.setAttenuation(attenuationConfig1, "0");
@@ -604,11 +595,11 @@ int main(){
         globalShader.setAttenuation(attenuationConfig3, "2");
         globalShader.setAttenuation(attenuationConfig4, "3");
 
-        globalShader.setPointColorLightN(glm::vec3(colorLightP0[0], colorLightP0[1], colorLightP0[2]), "0");
-        globalShader.setPointColorLightN(glm::vec3(colorLightP1[0], colorLightP1[1], colorLightP1[2]), "1");
-        globalShader.setPointColorLightN(glm::vec3(colorLightP2[0], colorLightP2[1], colorLightP2[2]), "2");
-        globalShader.setPointColorLightN(glm::vec3(colorLightP3[0], colorLightP3[1], colorLightP3[2]), "3");
-
+        globalShader.setPointColorLightN(glm::vec3(colorLightP0[0], colorLightP0[1], colorLightP0[2]), "0", "diffuse");
+        globalShader.setPointColorLightN(glm::vec3(colorLightP1[0], colorLightP1[1], colorLightP1[2]), "1", "diffuse");
+        globalShader.setPointColorLightN(glm::vec3(colorLightP2[0], colorLightP2[1], colorLightP2[2]), "2", "diffuse");
+        globalShader.setPointColorLightN(glm::vec3(colorLightP3[0], colorLightP3[1], colorLightP3[2]), "3", "diffuse");
+        // TODO FIX SHADER LIGHT COLOR
 
 
 

@@ -117,14 +117,14 @@ void Shader::setAttenuation(glm::vec3 value, std::string nLight) const {
     glUniform1f(glGetUniformLocation(ID, quadratic.c_str()), value.z);
 }
 
-void Shader::setPointColorLightN(glm::vec3 value, std::string nLight) const {
-    std::string ambient  = "pointLights[" + nLight + "].ambient";
-    std::string diffuse  = "pointLights[" + nLight + "].diffuse";
-    std::string specular = "pointLights[" + nLight + "].specular";
+void Shader::setPointColorLightN(glm::vec3 value, std::string nLight, std::string type) const {
+    std::string lightType = "pointLights[" + nLight + "]." + type;
+    //std::string diffuse  = "pointLights[" + nLight + "].diffuse";
+    //std::string specular = "pointLights[" + nLight + "].specular";
 
-    glUniform1f(glGetUniformLocation(ID, ambient.c_str()) , value.x);
-    glUniform1f(glGetUniformLocation(ID, diffuse.c_str()) , value.y);
-    glUniform1f(glGetUniformLocation(ID, specular.c_str()), value.z);
+    glUniform3f(glGetUniformLocation(ID, lightType.c_str()) , value.x, value.y, value.z);
+    //glUniform1f(glGetUniformLocation(ID, diffuse.c_str()) , value.y);
+    //glUniform1f(glGetUniformLocation(ID, specular.c_str()), value.z);
 }
 
 
