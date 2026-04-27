@@ -61,14 +61,14 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transform)
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
-        //vertex.position = vector;
-        vertex.position = glm::vec3(transform * glm::vec4(vector, 1.0f));
+        vertex.position = vector;
+        //vertex.position = glm::vec3(transform * glm::vec4(vector, 1.0f));
 
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
-        //vertex.normal = vector;
-        vertex.normal = glm::normalize(normalMatrix * vector);
+        vertex.normal = vector;
+        //vertex.normal = glm::normalize(normalMatrix * vector);
 
         if (mesh->mTextureCoords[0]){
             glm::vec2 vec;

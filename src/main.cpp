@@ -152,7 +152,6 @@ int main(){
         printf("NUMBER OF AXES AVAILABLE: %d\n", axesCount);
     }
 
-    // TODO SET EDIT MODE WITH CURSOR ACTIVATION
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, cursorCallBack);
     glfwSetScrollCallback(window, scrollCallback);
@@ -336,12 +335,14 @@ int main(){
 
     printf("%s\n", glGetString(GL_VERSION));
 
-    std::string backpackModelPath, teapotModelPath, caineModelPath;
+    std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath;
     teapotModelPath = "../resources/Models/Utah_teapot/Utah-teapot.obj";
     backpackModelPath = "../resources/Models/backpack/backpack.obj";
     caineModelPath = "../resources/Models/Amazing/Caine.glb";
-    Model guitar(backpackModelPath);
+    metalCubePath = "../resources/Models/MetalCube/metalCube.obj";
+    //Model guitar(backpackModelPath);
     Model teapot(teapotModelPath);
+    Model metalCube(metalCubePath);
     //Model caine(caineModelPath);
     //
     EditMode editUI(window);
@@ -397,19 +398,19 @@ int main(){
         globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
 
-        globalShader.use();
-        glm::mat4 guitarModel = glm::mat4(1.0f);
-        //guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, -2.8f, 10.0f));
-        guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, 0.0f, 12.0f));
-        guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
-        guitarModel = glm::rotate(guitarModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
-        glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        guitar.draw(globalShader);
+        //globalShader.use();
+        //glm::mat4 guitarModel = glm::mat4(1.0f);
+        ////guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+        //guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, 0.0f, 12.0f));
+        //guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
+        //guitarModel = glm::rotate(guitarModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //unsigned int guitarModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        //unsigned int guitarViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        //unsigned int guitarProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        //glUniformMatrix4fv(guitarModelLoc, 1, GL_FALSE, glm::value_ptr(guitarModel));
+        //glUniformMatrix4fv(guitarViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        //glUniformMatrix4fv(guitarProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        //guitar.draw(globalShader);
     
         globalShader.use();
         glm::mat4 teapotModel = glm::mat4(1.0f);
@@ -425,6 +426,22 @@ int main(){
         glUniformMatrix4fv(teapotViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
         glUniformMatrix4fv(teapotProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
         teapot.draw(globalShader);
+
+        globalShader.use();
+        globalShader.setInt("material.specular1", 1);
+        glm::mat4 metalCubeModel = glm::mat4(1.0f);
+        //metalCubeModel = glm::translate(metalCubeModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(14.0f, 0.0f, -14.0f));
+        metalCubeModel = glm::scale    (metalCubeModel, glm::vec3(1.0f, 1.0f, 1.0f));
+        metalCubeModel = glm::rotate(metalCubeModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //metalCubeModel = glm::rotate(metalCubeModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+        unsigned int metalCubeModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int metalCubeViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int metalCubeProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        glUniformMatrix4fv(metalCubeModelLoc, 1, GL_FALSE, glm::value_ptr(metalCubeModel));
+        glUniformMatrix4fv(metalCubeViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(metalCubeProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        metalCube.draw(globalShader);
 
         // CUBES ROTATING
         globalShader.use();
