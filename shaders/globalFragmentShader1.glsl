@@ -71,7 +71,7 @@ void main(){
     vec3 result = vec3(0.0);
 
     // Directional lighting
-    //result = calcDirLight(dirLight, norm, viewDir);
+    result = calcDirLight(dirLight, norm, viewDir);
 
     // Point lights 
     for (int i = 0; i < NR_POINT_LIGHTS; i++){
@@ -98,7 +98,7 @@ vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir){
     vec3 ambient  = light.ambient  * vec3(texture(material.texture_diffuse1 , texCoord)) * vec3(0.3);
     vec3 diffuse  = light.diffuse  * vec3(texture(material.texture_diffuse1 , texCoord));
     vec3 specular = light.specular * vec3(texture(material.texture_specular1, texCoord));
-
+     
     return (ambient + diffuse + specular);
 }
 
@@ -149,7 +149,7 @@ vec3 calcFlashLight(FlashLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
     vec3 diffuse  = light.diffuse  *         vec3(texture(material.texture_diffuse1 , texCoord));
     vec3 specular = light.specular * (spec * vec3(texture(material.texture_specular1, texCoord))); 
 
-    //ambient  *= attenuation;
+    ambient  *= intensity;
     diffuse  *= intensity * attenuation;
     specular *= intensity * attenuation;
 

@@ -8,6 +8,13 @@
 #include "shader.h"
 #include "camera.h"
 
+#define MIN_CONST_VAL  0.0f
+#define MAX_CONST_VAL  2.0f
+#define MIN_LINEAR_VAL 0.0f
+#define MAX_LINEAR_VAL 1.0f
+#define MIN_QUAD_VAL   0.0f
+#define MAX_QUAD_VAL   0.1F
+
 class EditMode{
     private:
         ImGuiIO io;
@@ -20,7 +27,8 @@ class EditMode{
         glm::vec3 attenuationConfig3 = glm::vec3(1.0f, 0.04f, 0.115f);
         glm::vec3 attenuationConfig4 = glm::vec3(1.0f, 0.04f, 0.115f);
 
-        float flashColorLight[4] = {1, 1, 1, 1};
+        float directColorLight[4] = {0.03f, 0.03f, 0.03f, 0.03f};
+        float flashColorLight[4]  = {1, 1, 1, 1};
         float colorLightP0[4] = {1, 1, 1, 1};
         float colorLightP1[4] = {1, 1, 1, 1};
         float colorLightP2[4] = {1, 1, 1, 1};

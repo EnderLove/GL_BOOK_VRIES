@@ -247,15 +247,15 @@ int main(){
     Shader materialShader("../shaders/materialVertexShader.vert", "../shaders/materialFragmentShader.frag");
     //Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/attenuationFragmentShader.frag");
     Shader attenuationShader("../shaders/attenuationVertexShader.vert", "../shaders/flashFragmentShader.frag");
-    Shader globalShader("../shaders/globalVertexShader.vert", "../shaders/globalFragmentShader1.frag");
+    Shader globalShader("../shaders/globalVertexShader.glsl", "../shaders/globalFragmentShader1.glsl");
     Shader modelShader("../shaders/modelVertexShader.vert", "../shaders/modelFragmentShader.frag");
 
     globalShader.use();
     // Directional Light
     globalShader.setVec3("dirLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
-    globalShader.setVec3("dirLight.ambient" , glm::vec3(0.05f, 0.05f, 0.05f));
-    globalShader.setVec3("dirLight.diffuse" , glm::vec3(0.05f, 0.05f, 0.05f));
-    globalShader.setVec3("dirLight.specular", glm::vec3(0.05f, 0.05f, 0.05f));
+    globalShader.setVec3("dirLight.ambient" , glm::vec3(0.03f, 0.03f, 0.03f));
+    globalShader.setVec3("dirLight.diffuse" , glm::vec3(0.03f, 0.03f, 0.03f));
+    globalShader.setVec3("dirLight.specular", glm::vec3(0.03f, 0.03f, 0.03f));
 
     // Point Lights 
     globalShader.setVec3("pointLights[0].ambient" , glm::vec3(0.5f, 0.5f, 0.5f));
@@ -524,11 +524,8 @@ int main(){
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        editUI.modifyShader(globalShader, camera);
-        editUI.renderUI();        
-        // IMGUI WINDOW RENDER
-        //ImGui::Render();
-        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        editUI.modifyShader(globalShader, camera); // ACTUAL UI
+        editUI.renderUI(); // RENDER UI        
 
         glfwSwapBuffers(window);
         glfwPollEvents();

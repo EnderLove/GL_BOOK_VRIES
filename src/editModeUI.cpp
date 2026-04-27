@@ -29,14 +29,18 @@ void EditMode::renderUI(){
 void EditMode::modifyShader(Shader &shader, Camera &camera){
 
     ImGui::Begin("EDIT MODE");
+        ImGui::SeparatorText("DIRECT LIGHT CONFIG");
+        ImGui::ColorEdit4("DirectColor", directColorLight);
+
+        ImGui::SeparatorText("FLASH LIGHT CONFIG");
         ImGui::Checkbox("FlashLight", &cameraFlashlight);
 
-        ImGui::SliderFloat("Flash Const", &atteFlashConfig.x, 0.0f, 2.0f);
-        ImGui::SliderFloat("Flash Linear", &atteFlashConfig.y, 0.0f, 1.0f);
-        ImGui::SliderFloat("Flash Quadratic", &atteFlashConfig.z, 0.0f, 1.0f);
+        ImGui::SliderFloat("Flash Const"    , &atteFlashConfig.x, MIN_CONST_VAL , MAX_CONST_VAL );
+        ImGui::SliderFloat("Flash Linear"   , &atteFlashConfig.y, MIN_LINEAR_VAL, MAX_LINEAR_VAL);
+        ImGui::SliderFloat("Flash Quadratic", &atteFlashConfig.z, MIN_QUAD_VAL  , MAX_QUAD_VAL  );
         ImGui::ColorEdit4("FlashColor", flashColorLight);
 
-        ImGui::Separator();
+        ImGui::SeparatorText("POINT LIGHT CONFIG");
         ImGui::Checkbox("1", &pointLight1);
         ImGui::SameLine();
         ImGui::Checkbox("2", &pointLight2);
@@ -48,29 +52,30 @@ void EditMode::modifyShader(Shader &shader, Camera &camera){
         ImGui::Separator();
         if (pointLight1){
             ImGui::Text("PointLight_1");
-            ImGui::SliderFloat("Const", &attenuationConfig1.x, 0.0f, 2.0f);    
-            ImGui::SliderFloat("Linear", &attenuationConfig1.y, 0.0f, 1.0f);    
-            ImGui::SliderFloat("Quadratic", &attenuationConfig1.z, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Const"    , &attenuationConfig1.x, MIN_CONST_VAL , MAX_CONST_VAL );    
+            ImGui::SliderFloat("Linear"   , &attenuationConfig1.y, MIN_LINEAR_VAL, MAX_LINEAR_VAL);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig1.z, MIN_QUAD_VAL  , MAX_QUAD_VAL  );    
             ImGui::ColorEdit4("Color1", colorLightP0);
         }
         if (pointLight2){
             ImGui::Text("PointLight_2");
-            ImGui::SliderFloat("Const", &attenuationConfig2.x, 0.0f, 2.0f);    
-            ImGui::SliderFloat("Linear", &attenuationConfig2.y, 0.0f, 1.0f);    
-            ImGui::SliderFloat("Quadratic", &attenuationConfig2.z, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Const"    , &attenuationConfig2.x, MIN_CONST_VAL , MAX_CONST_VAL );    
+            ImGui::SliderFloat("Linear"   , &attenuationConfig2.y, MIN_LINEAR_VAL, MAX_LINEAR_VAL);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig2.z, MIN_QUAD_VAL  , MAX_QUAD_VAL  );    
             ImGui::ColorEdit4("Color2", colorLightP1);
         }
         if (pointLight3){
-            ImGui::SliderFloat("Const", &attenuationConfig3.x, 0.0f, 2.0f);    
-            ImGui::SliderFloat("Linear", &attenuationConfig3.y, 0.0f, 1.0f);    
-            ImGui::SliderFloat("Quadratic", &attenuationConfig3.z, 0.0f, 1.0f);    
+            ImGui::Text("PointLight_3");
+            ImGui::SliderFloat("Const"    , &attenuationConfig3.x, MIN_CONST_VAL , MAX_CONST_VAL );    
+            ImGui::SliderFloat("Linear"   , &attenuationConfig3.y, MIN_LINEAR_VAL, MAX_LINEAR_VAL);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig3.z, MIN_QUAD_VAL  , MAX_QUAD_VAL  );    
             ImGui::ColorEdit4("Color3", colorLightP2);
         }
         if (pointLight4){
             ImGui::Text("PointLight_4");
-            ImGui::SliderFloat("Const", &attenuationConfig4.x, 0.0f, 2.0f);    
-            ImGui::SliderFloat("Linear", &attenuationConfig4.y, 0.0f, 1.0f);    
-            ImGui::SliderFloat("Quadratic", &attenuationConfig4.z, 0.0f, 1.0f);    
+            ImGui::SliderFloat("Const"    , &attenuationConfig4.x, MIN_CONST_VAL , MAX_CONST_VAL );    
+            ImGui::SliderFloat("Linear"   , &attenuationConfig4.y, MIN_LINEAR_VAL, MAX_LINEAR_VAL);    
+            ImGui::SliderFloat("Quadratic", &attenuationConfig4.z, MIN_QUAD_VAL  , MAX_QUAD_VAL  );    
             ImGui::ColorEdit4("Color4", colorLightP3);
         }
         ImGui::Separator();
@@ -90,7 +95,7 @@ void EditMode::modifyShader(Shader &shader, Camera &camera){
 
         shader.setAttenuationByStruct(atteFlashConfig, "flashLight");
         shader.setColorLightByStruct(glm::vec3(flashColorLight[0], flashColorLight[1], flashColorLight[2]), "flashLight", "diffuse");
-
+        shader.setColorLightByStruct(glm::vec3(directColorLight[0], directColorLight[1], directColorLight[2]), "dirLight", "diffuse");
         
         shader.use();
         if (cameraFlashlight){
