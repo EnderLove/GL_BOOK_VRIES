@@ -54,6 +54,8 @@ vec3 calcDirLight  (DirLight   light, vec3 normal, vec3 viewDir);
 vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 calcFlashLight(FlashLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
+uniform bool pointLightSource;
+uniform int nPointLight;
 uniform vec3 viewPos;
 uniform float time;
 
@@ -65,6 +67,12 @@ out vec4 FragColor;
 
 // TODO:REFACTOR CALCULATIONS
 void main(){
+
+    if (pointLightSource){
+        FragColor = vec4(pointLights[nPointLight].diffuse, 1.0);
+        return;
+    } 
+
     // Properties
     vec3 norm = normalize(normal); 
     vec3 viewDir = normalize(viewPos - fragPos);

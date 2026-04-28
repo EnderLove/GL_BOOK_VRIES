@@ -343,7 +343,7 @@ int main(){
     scenarioModelPath = "../resources/Models/Scenario01/Scenario01.obj";
     containerModelPath = "../resources/Models/Container/container.obj";
     //Model guitar(backpackModelPath);
-    Model teapot(teapotModelPath);
+    //Model teapot(teapotModelPath);
     Model metalCube(metalCubePath);
     Model scenario(scenarioModelPath);
     Model container(containerModelPath);
@@ -450,6 +450,7 @@ int main(){
         metalCube.draw(globalShader);
 
         globalShader.use();
+        globalShader.setInt("material.texture_specular1", 5);
         globalShader.setFloat("material.shininess", 16);
         glm::mat4 scenarioModel = glm::mat4(1.0f);
         scenarioModel = glm::translate(scenarioModel, glm::vec3(0.0f, -3.0f, 0.0f));
@@ -467,7 +468,7 @@ int main(){
 
         // TODO FIX NORMALS OF MODEL 
         globalShader.use();
-        globalShader.setFloat("material.shininess", 16);
+        globalShader.setFloat("material.shininess", 256);
         glm::mat4 containerModel = glm::mat4(1.0f);
         glm::mat4 containerModelInverse = glm::inverse(containerModel); // NORMAL MATRIX
         unsigned int containerModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
@@ -484,46 +485,34 @@ int main(){
             float angle = 20.0f * i;
             containerModel = glm::rotate(containerModel, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
 
-            glm::mat4 cubeModelInverse = glm::inverse(containerModel); // NORMAL MATRIX
+            containerModelInverse = glm::inverse(containerModel); // NORMAL MATRIX
             glUniformMatrix4fv(containerModelInvLoc, 1, GL_FALSE, glm::value_ptr(containerModelInverse));
             glUniformMatrix4fv(containerModelLoc, 1, GL_FALSE, glm::value_ptr(containerModel));
             container.draw(globalShader);
         }
+ 
+        // SCENARIO LIGHT SOURCE 
+        globalShader.use();
+        globalShader.setBool("pointLightSource", 1);
+        glm::mat4 lightModel = glm::mat4(1.0f);
 
-        //// CUBES ROTATING
-        //globalShader.use();
-        //globalShader.setFloat("material.shininess", 256);
-        //globalShader.setInt("material.texture_diffuse1" , 4);
-        //globalShader.setInt("material.texture_specular1", 5);
-        //globalShader.setInt("material.emission", 6);
+        unsigned int lightModelLoc = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int lightViewLoc  = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int lightProjLoc  = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        glUniformMatrix4fv(lightViewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(lightProjLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
 
-        //float texMoveSpeed;
-        //globalShader.setFloat("time", glfwGetTime());
-        ////globalShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 1.0f));
-        ////globalShader.setVec3("lightColor" , glm::vec3(1.0f, 1.0f, 1.0f));
-
-        //glm::mat4 cubeModel = glm::mat4(1.0f);
-        //unsigned int modelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
-        //unsigned int modelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse"); // TODO SET INVERSE FOR ALL MODELS
-        //unsigned int viewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
-        //unsigned int projLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        //glUniformMatrix4fv(viewLoc , 1, GL_FALSE, glm::value_ptr(globalView));
-        //glUniformMatrix4fv(projLoc , 1, GL_FALSE, glm::value_ptr(globalProjection));
-      
-        //glBindVertexArray(VAO[0]);
-        //for (unsigned int i = 0; i < 10; i++){
-        //    cubeModel = glm::mat4(1.0f);
-        //    cubeModel = glm::translate(cubeModel, cubePosition[i]);
-        //    cubeModel = glm::scale(cubeModel, glm::vec3(0.7f, 0.7f, 0.7f));
-        //    float angle = 20.0f * i;
-        //    cubeModel = glm::rotate(cubeModel, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
-
-        //    glm::mat4 cubeModelInverse = glm::inverse(cubeModel); // NORMAL MATRIX
-        //    glUniformMatrix4fv(modelInvLoc, 1, GL_FALSE, glm::value_ptr(cubeModelInverse));
-        //    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cubeModel));
-        //    glDrawArrays(GL_TRIANGLES, 0, 36);
-        //}
-      
+        for (int i = 0; i < 4; i++){
+            globalShader.setInt("nPointLight", i);
+            lightModel = glm::mat4(1.0f);
+            lightModel = glm::translate(lightModel, pointLightPositions[i]);
+            lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+            glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
+            glBindVertexArray(VAO[0]);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        globalShader.setBool("pointLightSource", 0); // RESET VALUE
+        /* 
         // SCENARIO LIGHT SOURCE 
         lightSrcShader.use();
         lightSrcShader.setVec3("lightColor", glm::vec3(colorLight[0], colorLight[1], colorLight[2]));
@@ -543,7 +532,7 @@ int main(){
             glBindVertexArray(VAO[0]);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
+        */
         editUI.modifyShader(globalShader, camera); // ACTUAL UI
         editUI.renderUI(); // RENDER UI        
 
