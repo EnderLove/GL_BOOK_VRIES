@@ -17,7 +17,7 @@
 
 class EditMode{
     private:
-        ImGuiIO io;
+        ImGuiIO *io;
         bool cameraFlashlight = false;
 
         glm::vec3 atteFlashConfig    = glm::vec3(1.0f, 0.04f, 0.115f);

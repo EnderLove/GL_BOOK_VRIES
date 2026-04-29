@@ -1,5 +1,6 @@
 #include "model.h"
 #include "load2DTexture.h"
+#include <assimp/postprocess.h>
 
 Model::Model(std::string const &path){
     printf("============ MODEL::PROCESS::START::FROM::(%s) ==============\n", path.c_str());

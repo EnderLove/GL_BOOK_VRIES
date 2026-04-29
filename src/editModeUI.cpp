@@ -3,7 +3,7 @@
 EditMode::EditMode(GLFWwindow *window){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    io = ImGui::GetIO(); (void)io;
+    io = &ImGui::GetIO(); (void)io;
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
     ImGui::StyleColorsDark();
@@ -79,7 +79,7 @@ void EditMode::modifyShader(Shader &shader, Camera &camera){
             ImGui::ColorEdit4("Color4", colorLightP3);
         }
         ImGui::Separator();
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
         ImGui::End();
 
         shader.use();
