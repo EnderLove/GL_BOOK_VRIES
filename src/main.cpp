@@ -263,7 +263,7 @@ int main(){
     teapotModelPath = "../resources/Models/Utha_Teapot/Utah-teapot.obj";
     //backpackModelPath = "../resources/Models/backpack/backpack.obj";
     backpackModelPath = "../resources/Models/Guitar/guitar.obj";
-    caineModelPath = "../resources/Models/Amazing/Caine.glb";
+    caineModelPath = "../resources/Models/caine/caine.obj";
     metalCubePath = "../resources/Models/MetalCube/metalCube.obj";
     scenarioModelPath = "../resources/Models/Scenario01/Scenario01.obj";
     //scenarioModelPath = "../resources/Models/Floor/floor.obj";
@@ -273,7 +273,7 @@ int main(){
     Model metalCube(metalCubePath);
     Model scenario(scenarioModelPath);
     Model container(containerModelPath);
-    //Model caine(caineModelPath);
+    Model caine(caineModelPath);
     //
     EditMode editUI(window);
 
@@ -346,6 +346,23 @@ int main(){
         glUniformMatrix4fv(guitarProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
         guitar.draw(globalShader);
     
+        globalShader.use();
+        glm::mat4 caineModel = glm::mat4(1.0f);
+        //caineModel = glm::translate(caineModel, glm::vec3(-15.0f, -2.8f, 10.0f));
+        caineModel = glm::translate(caineModel, glm::vec3(-17.0f, -2.0f, -14.0f));
+        caineModel = glm::scale    (caineModel, glm::vec3(1.0f, 1.0f, 1.0f));
+        caineModel = glm::rotate(caineModel, glm::radians(90.0f + currentFrame * 60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 caineModelInverse = glm::inverse(caineModel);
+        unsigned int caineModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
+        unsigned int caineModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse");
+        unsigned int caineViewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
+        unsigned int caineProjLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        glUniformMatrix4fv(caineModelLoc   , 1, GL_FALSE, glm::value_ptr(caineModel));
+        glUniformMatrix4fv(caineModelInvLoc, 1, GL_FALSE, glm::value_ptr(caineModelInverse));
+        glUniformMatrix4fv(caineViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
+        glUniformMatrix4fv(caineProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        caine.draw(globalShader);
+
         globalShader.use();
         globalShader.setFloat("material.shininess", 256);
         glm::mat4 teapotModel = glm::mat4(1.0f);
