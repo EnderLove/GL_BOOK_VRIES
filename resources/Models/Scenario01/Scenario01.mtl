@@ -1,82 +1,137 @@
-# Blender 5.1.0 MTL File: 'None'
+# Blender 5.1.0 MTL File: 'Scenario.blend'
 # www.blender.org
 
+newmtl Material
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+Pr 0.500000
+Pm 0.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd metall010-new-tileable.png
+map_Ks metall010-new-tileable.png
+
 newmtl Material.001
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png
 
 newmtl Material.002
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png
 
 newmtl Material.003
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png
 
 newmtl Material.004
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
-illum 3
-map_Kd metallFloor.png
+illum 2
+Pr 0.500000
+Pm 0.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd container2.png
 
 newmtl Material.005
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png
 
 newmtl Material.006
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png
 
 newmtl Material.007
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png
 
 newmtl Material.008
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd metallFloor.png
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd floorPattern.png
+map_Ks floorPattern.png

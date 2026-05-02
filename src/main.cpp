@@ -165,7 +165,7 @@ int main(){
    
     glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
 
-    stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
+    //stbi_set_flip_vertically_on_load(true); // FLIP Y VALUE
     LoadTextures textures; 
     textures.loadAll();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -260,12 +260,13 @@ int main(){
     printf("%s\n", glGetString(GL_VERSION));
 
     std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath, scenarioModelPath, containerModelPath;
-    //teapotModelPath = "../resources/Models/Utah_teapot/Utah-teapot.obj";
     teapotModelPath = "../resources/Models/Utha_Teapot/Utah-teapot.obj";
-    backpackModelPath = "../resources/Models/backpack/backpack.obj";
+    //backpackModelPath = "../resources/Models/backpack/backpack.obj";
+    backpackModelPath = "../resources/Models/Guitar/guitar.obj";
     caineModelPath = "../resources/Models/Amazing/Caine.glb";
     metalCubePath = "../resources/Models/MetalCube/metalCube.obj";
     scenarioModelPath = "../resources/Models/Scenario01/Scenario01.obj";
+    //scenarioModelPath = "../resources/Models/Floor/floor.obj";
     containerModelPath = "../resources/Models/Container/container.obj";
     Model guitar(backpackModelPath);
     Model teapot(teapotModelPath);
@@ -381,7 +382,7 @@ int main(){
         metalCube.draw(globalShader);
 
         globalShader.use();
-        globalShader.setFloat("material.shininess", 16);
+        globalShader.setFloat("material.shininess", 1);
         glm::mat4 scenarioModel = glm::mat4(1.0f);
         scenarioModel = glm::translate(scenarioModel, glm::vec3(0.0f, -3.0f, 0.0f));
         scenarioModel = glm::scale    (scenarioModel, glm::vec3(1.0f, 1.0f, 1.0f));
