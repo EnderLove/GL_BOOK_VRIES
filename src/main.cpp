@@ -269,7 +269,7 @@ int main(){
     //scenarioModelPath = "../resources/Models/Floor/floor.obj";
     containerModelPath = "../resources/Models/Container/container.obj";
     Model guitar(backpackModelPath);
-    Model teapot(teapotModelPath);
+    //Model teapot(teapotModelPath);
     Model metalCube(metalCubePath);
     Model scenario(scenarioModelPath);
     Model container(containerModelPath);
@@ -363,23 +363,23 @@ int main(){
         glUniformMatrix4fv(caineProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
         caine.draw(globalShader);
 
-        globalShader.use();
-        globalShader.setFloat("material.shininess", 256);
-        glm::mat4 teapotModel = glm::mat4(1.0f);
-        teapotModel = glm::translate(teapotModel, glm::vec3(14.0f, -2.0f, 14.0f));
-        teapotModel = glm::scale    (teapotModel, glm::vec3(9.0f, 9.0f, 9.0f));
-        teapotModel = glm::rotate(teapotModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 teapotModelInverse = glm::inverse(teapotModel); // NORMAL MATRIX
-        //teapotModel = glm::rotate(teapotModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
-        unsigned int teapotModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int teapotModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse"); 
-        unsigned int teapotViewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int teapotProjLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(teapotModelLoc   , 1, GL_FALSE, glm::value_ptr(teapotModel));
-        glUniformMatrix4fv(teapotModelInvLoc, 1, GL_FALSE, glm::value_ptr(teapotModelInverse));
-        glUniformMatrix4fv(teapotViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(teapotProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        teapot.draw(globalShader);
+        //jglobalShader.use();
+        //jglobalShader.setFloat("material.shininess", 256);
+        //jglm::mat4 teapotModel = glm::mat4(1.0f);
+        //jteapotModel = glm::translate(teapotModel, glm::vec3(14.0f, -2.0f, 14.0f));
+        //jteapotModel = glm::scale    (teapotModel, glm::vec3(9.0f, 9.0f, 9.0f));
+        //jteapotModel = glm::rotate(teapotModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //jglm::mat4 teapotModelInverse = glm::inverse(teapotModel); // NORMAL MATRIX
+        //j//teapotModel = glm::rotate(teapotModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
+        //junsigned int teapotModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
+        //junsigned int teapotModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse"); 
+        //junsigned int teapotViewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
+        //junsigned int teapotProjLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
+        //jglUniformMatrix4fv(teapotModelLoc   , 1, GL_FALSE, glm::value_ptr(teapotModel));
+        //jglUniformMatrix4fv(teapotModelInvLoc, 1, GL_FALSE, glm::value_ptr(teapotModelInverse));
+        //jglUniformMatrix4fv(teapotViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
+        //jglUniformMatrix4fv(teapotProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
+        //jteapot.draw(globalShader);
 
         globalShader.use();        
         globalShader.setFloat("material.shininess", 16);
