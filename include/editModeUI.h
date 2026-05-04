@@ -27,7 +27,7 @@ class EditMode{
         glm::vec3 attenuationConfig3 = glm::vec3(1.0f, 0.04f, 0.115f);
         glm::vec3 attenuationConfig4 = glm::vec3(1.0f, 0.04f, 0.115f);
 
-        float directColorLight[4] = {0.03f, 0.03f, 0.03f, 0.03f};
+        float directColorLight[4] = {0.43f, 0.43f, 0.43f, 0.43f};
         float flashColorLight[4]  = {1, 1, 1, 1};
         float colorLightP0[4] = {1, 1, 1, 1};
         float colorLightP1[4] = {1, 1, 1, 1};

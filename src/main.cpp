@@ -31,7 +31,7 @@ const int SCR_HEIGHT =  9 * 90;
 
 bool editMode = false;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f)); // Initialization of the camera with a pos
+Camera camera(glm::vec3(0.0f, 3.0f, 3.0f)); // Initialization of the camera with a pos
 
 float lastX = (float)SCR_WIDTH  / 2;
 float lastY = (float)SCR_HEIGHT / 2;
@@ -40,7 +40,7 @@ bool firstMouse = false;
 float deltaTime = 0.0f; // Diference of time between frames
 float lastFrame = 0.0f; // Time of the last frame
 
-float r = 0.0f; float g = 0.0f; float b = 0.0f; // BACKGROUND COLOR
+float r = 0.5f; float g = 0.5f; float b = 0.7f; // BACKGROUND COLOR
 
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
@@ -270,6 +270,9 @@ int main(){
     
     EditMode editUI(window);
 
+        
+    float yPos = 15.0f;
+
     while (!glfwWindowShouldClose(window)){
         processInput(window);
         processColorScreen(window);
@@ -317,13 +320,29 @@ int main(){
         globalShader.setFloat("flashLight.cutOff", glm::cos(glm::radians(15.0f)));
         globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
-  
+ 
+
+        //d = v * t 
+        float velocity = 1.0f;
+        float distance = velocity * currentFrame;
+
+        //printf("Distance: %f\n", distance);
+
+        if (yPos >= 1.0f){
+            yPos -= distance;
+            //yPos -= velocity;
+        }
+        else{
+            yPos += distance;
+            //yPos += velocity;
+        } 
+
         globalShader.use();        
         globalShader.setFloat("material.shininess", 16);
         glm::mat4 metalCubeModel = glm::mat4(1.0f);
-        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(14.0f, -2.0f, -14.0f));
+        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, yPos, -10.0f));
         metalCubeModel = glm::scale    (metalCubeModel, glm::vec3(1.0f, 1.0f, 1.0f));
-        metalCubeModel = glm::rotate(metalCubeModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        //metalCubeModel = glm::rotate(metalCubeModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 metalCubeModelInverse = glm::inverse(metalCubeModel); // NORMAL MATRIX
         unsigned int metalCubeModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
         unsigned int metalCubeModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse"); 
@@ -338,7 +357,7 @@ int main(){
         globalShader.use();
         globalShader.setFloat("material.shininess", 1);
         glm::mat4 scenarioModel = glm::mat4(1.0f);
-        scenarioModel = glm::translate(scenarioModel, glm::vec3(0.0f, -3.0f, 0.0f));
+        scenarioModel = glm::translate(scenarioModel, glm::vec3(0.0f, 0.0f, 0.0f));
         scenarioModel = glm::scale    (scenarioModel, glm::vec3(1.0f, 1.0f, 1.0f));
         glm::mat4 scenarioModelInverse = glm::inverse(scenarioModel); // NORMAL MATRIX
         unsigned int scenarioModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
