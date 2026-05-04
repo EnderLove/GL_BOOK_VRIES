@@ -260,21 +260,16 @@ int main(){
     printf("%s\n", glGetString(GL_VERSION));
 
     std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath, scenarioModelPath, containerModelPath;
-    teapotModelPath = "../resources/Models/Utha_Teapot/Utah-teapot.obj";
     //backpackModelPath = "../resources/Models/backpack/backpack.obj";
-    backpackModelPath = "../resources/Models/Guitar/guitar.obj";
-    caineModelPath = "../resources/Models/caine/caine.obj";
     metalCubePath = "../resources/Models/MetalCube/metalCube.obj";
-    scenarioModelPath = "../resources/Models/Scenario01/Scenario01.obj";
-    //scenarioModelPath = "../resources/Models/Floor/floor.obj";
+    scenarioModelPath = "../resources/Models/Floor/floor.obj";
     containerModelPath = "../resources/Models/Container/container.obj";
     Model guitar(backpackModelPath);
     //Model teapot(teapotModelPath);
     Model metalCube(metalCubePath);
     Model scenario(scenarioModelPath);
     Model container(containerModelPath);
-    Model caine(caineModelPath);
-    //
+    
     EditMode editUI(window);
 
     while (!glfwWindowShouldClose(window)){
