@@ -260,12 +260,10 @@ int main(){
     printf("%s\n", glGetString(GL_VERSION));
 
     std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath, scenarioModelPath, containerModelPath;
-    //backpackModelPath = "../resources/Models/backpack/backpack.obj";
     metalCubePath = "../resources/Models/MetalCube/metalCube.obj";
     scenarioModelPath = "../resources/Models/Floor/floor.obj";
     containerModelPath = "../resources/Models/Container/container.obj";
-    Model guitar(backpackModelPath);
-    //Model teapot(teapotModelPath);
+    
     Model metalCube(metalCubePath);
     Model scenario(scenarioModelPath);
     Model container(containerModelPath);
@@ -298,11 +296,8 @@ int main(){
         // TEXTURE BINDING 
         //textures.woodBoxContainer.bindTexture(1);
         textures.pixelRedEye.bindTexture(7);
-        //textures.floor.bindTexture(2);
-        //textures.metal.bindTexture(3);
         textures.container2.bindTexture(4);
         textures.container2Spec.bindTexture(5);
-        //textures.matrix.bindTexture(6);
         textures.container2WoodEmission.bindTexture(6);
 
         // GLOBAL VIEW & PROJECTION 
@@ -322,60 +317,7 @@ int main(){
         globalShader.setFloat("flashLight.cutOff", glm::cos(glm::radians(15.0f)));
         globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
         globalShader.setVec3("viewPos", camera.Position);
-
-        // TODO STILL NEED TO FIX THE SPECULAR EXPORT
-        globalShader.use();
-        glm::mat4 guitarModel = glm::mat4(1.0f);
-        //guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, -2.8f, 10.0f));
-        guitarModel = glm::translate(guitarModel, glm::vec3(-15.0f, 0.0f, 12.0f));
-        guitarModel = glm::scale    (guitarModel, glm::vec3(1.0f, 1.0f, 1.0f));
-        guitarModel = glm::rotate(guitarModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 guitarModelInverse = glm::inverse(guitarModel);
-        unsigned int guitarModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int guitarModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse");
-        unsigned int guitarViewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int guitarProjLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(guitarModelLoc   , 1, GL_FALSE, glm::value_ptr(guitarModel));
-        glUniformMatrix4fv(guitarModelInvLoc, 1, GL_FALSE, glm::value_ptr(guitarModelInverse));
-        glUniformMatrix4fv(guitarViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(guitarProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        guitar.draw(globalShader);
-    
-        globalShader.use();
-        glm::mat4 caineModel = glm::mat4(1.0f);
-        //caineModel = glm::translate(caineModel, glm::vec3(-15.0f, -2.8f, 10.0f));
-        caineModel = glm::translate(caineModel, glm::vec3(-17.0f, -2.0f, -14.0f));
-        caineModel = glm::scale    (caineModel, glm::vec3(1.0f, 1.0f, 1.0f));
-        caineModel = glm::rotate(caineModel, glm::radians(90.0f + currentFrame * 60.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 caineModelInverse = glm::inverse(caineModel);
-        unsigned int caineModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
-        unsigned int caineModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse");
-        unsigned int caineViewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
-        unsigned int caineProjLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        glUniformMatrix4fv(caineModelLoc   , 1, GL_FALSE, glm::value_ptr(caineModel));
-        glUniformMatrix4fv(caineModelInvLoc, 1, GL_FALSE, glm::value_ptr(caineModelInverse));
-        glUniformMatrix4fv(caineViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
-        glUniformMatrix4fv(caineProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        caine.draw(globalShader);
-
-        //jglobalShader.use();
-        //jglobalShader.setFloat("material.shininess", 256);
-        //jglm::mat4 teapotModel = glm::mat4(1.0f);
-        //jteapotModel = glm::translate(teapotModel, glm::vec3(14.0f, -2.0f, 14.0f));
-        //jteapotModel = glm::scale    (teapotModel, glm::vec3(9.0f, 9.0f, 9.0f));
-        //jteapotModel = glm::rotate(teapotModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //jglm::mat4 teapotModelInverse = glm::inverse(teapotModel); // NORMAL MATRIX
-        //j//teapotModel = glm::rotate(teapotModel, glm::radians(currentFrame), glm::vec3(0.0f, 1.0f, 0.0f));
-        //junsigned int teapotModelLoc    = glGetUniformLocation(globalShader.getShaderID(), "model");
-        //junsigned int teapotModelInvLoc = glGetUniformLocation(globalShader.getShaderID(), "modelInverse"); 
-        //junsigned int teapotViewLoc     = glGetUniformLocation(globalShader.getShaderID(), "view");
-        //junsigned int teapotProjLoc     = glGetUniformLocation(globalShader.getShaderID(), "projection");
-        //jglUniformMatrix4fv(teapotModelLoc   , 1, GL_FALSE, glm::value_ptr(teapotModel));
-        //jglUniformMatrix4fv(teapotModelInvLoc, 1, GL_FALSE, glm::value_ptr(teapotModelInverse));
-        //jglUniformMatrix4fv(teapotViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
-        //jglUniformMatrix4fv(teapotProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
-        //jteapot.draw(globalShader);
-
+  
         globalShader.use();        
         globalShader.setFloat("material.shininess", 16);
         glm::mat4 metalCubeModel = glm::mat4(1.0f);
@@ -409,6 +351,7 @@ int main(){
         glUniformMatrix4fv(scenarioProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
         scenario.draw(globalShader);
 
+        /*
         globalShader.use();
         globalShader.setInt("material.texture_specular1", 7);
         globalShader.setFloat("material.shininess", 16);
@@ -432,6 +375,7 @@ int main(){
             glUniformMatrix4fv(containerModelLoc, 1, GL_FALSE, glm::value_ptr(containerModel));
             container.draw(globalShader);
         }
+        */
  
         // SCENARIO LIGHT SOURCE 
         globalShader.use();
