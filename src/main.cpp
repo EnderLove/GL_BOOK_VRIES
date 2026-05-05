@@ -399,7 +399,7 @@ int main(){
         metalCube.draw(globalShader);
 
         globalShader.use();
-        globalShader.setFloat("material.shininess", 1);
+        globalShader.setFloat("material.shininess", 256);
         glm::mat4 scenarioModel = glm::mat4(1.0f);
         scenarioModel = glm::translate(scenarioModel, glm::vec3(0.0f, -3.0f, 0.0f));
         scenarioModel = glm::scale    (scenarioModel, glm::vec3(1.0f, 1.0f, 1.0f));
