@@ -40,7 +40,7 @@ bool firstMouse = false;
 float deltaTime = 0.0f; // Diference of time between frames
 float lastFrame = 0.0f; // Time of the last frame
 
-float r = 0.5f; float g = 0.5f; float b = 0.7f; // BACKGROUND COLOR
+float r = 0.05f; float g = 0.05f; float b = 0.05f; // BACKGROUND COLOR
 
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
@@ -229,7 +229,7 @@ int main(){
     globalShader.setFloat("flashLight.linear"   , 0.04f);
     globalShader.setFloat("flashLight.quadratic", 0.015f);
 
-    globalShader.setVec3("flashLight.position", glm::vec3(0.0f, 10.0f, -2.0f));
+    globalShader.setVec3("flashLight.position", glm::vec3(0.0f, 10.0f, -10.0f));
     globalShader.setVec3("flashLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
 
     glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
@@ -260,8 +260,8 @@ int main(){
     printf("%s\n", glGetString(GL_VERSION));
 
     std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath, scenarioModelPath, containerModelPath;
-    metalCubePath = "../resources/Models/MetalCube/metalCube.obj";
-    scenarioModelPath = "../resources/Models/Floor/floor.obj";
+    metalCubePath = "../resources/Models/PhysicsCube/PhysicsCube.obj";
+    scenarioModelPath = "../resources/Models/PhysicsFloor/PhysicsFloor.obj";
     containerModelPath = "../resources/Models/Container/container.obj";
     
     Model metalCube(metalCubePath);
@@ -329,18 +329,18 @@ int main(){
         //printf("Distance: %f\n", distance);
 
         if (yPos >= 1.0f){
-            yPos -= distance;
+            //yPos -= distance;
             //yPos -= velocity;
         }
         else{
-            yPos += distance;
+            //yPos += distance;
             //yPos += velocity;
         } 
 
         globalShader.use();        
-        globalShader.setFloat("material.shininess", 16);
+        globalShader.setFloat("material.shininess", 256);
         glm::mat4 metalCubeModel = glm::mat4(1.0f);
-        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, yPos, -10.0f));
+        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, 1.0f, -10.0f));
         metalCubeModel = glm::scale    (metalCubeModel, glm::vec3(1.0f, 1.0f, 1.0f));
         //metalCubeModel = glm::rotate(metalCubeModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 metalCubeModelInverse = glm::inverse(metalCubeModel); // NORMAL MATRIX
