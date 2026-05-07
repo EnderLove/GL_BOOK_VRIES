@@ -323,24 +323,24 @@ int main(){
  
 
         //d = v * t 
-        float velocity = 1.0f;
+        float velocity = 0.8f;
         float distance = velocity * currentFrame;
 
         //printf("Distance: %f\n", distance);
 
         if (yPos >= 1.0f){
-            //yPos -= distance;
+            yPos -= distance;
             //yPos -= velocity;
         }
         else{
-            //yPos += distance;
+            yPos += distance;
             //yPos += velocity;
         } 
 
         globalShader.use();        
         globalShader.setFloat("material.shininess", 256);
         glm::mat4 metalCubeModel = glm::mat4(1.0f);
-        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, 1.0f, -10.0f));
+        metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, yPos, -10.0f));
         metalCubeModel = glm::scale    (metalCubeModel, glm::vec3(1.0f, 1.0f, 1.0f));
         //metalCubeModel = glm::rotate(metalCubeModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 metalCubeModelInverse = glm::inverse(metalCubeModel); // NORMAL MATRIX
