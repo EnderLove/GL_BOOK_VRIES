@@ -1,5 +1,5 @@
-#ifndef MAT_2_H 
-#define MAT_2_H
+#ifndef MATRIX_LIB_H 
+#define MATRIX_LIB_H
 
 #include "VectorsLib.h"
 #include <assimp/config.h>
@@ -528,4 +528,4 @@ inline Mat4 Mat4::operator * (const Mat4 &rhs) const {
     return temp;
 }
 
-#endif // MAT_2_H!
+#endif // MATRIX_LIB_H!
