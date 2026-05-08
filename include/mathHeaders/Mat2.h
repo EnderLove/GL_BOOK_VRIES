@@ -58,4 +58,12 @@ inline const Mat2 &Mat2::operator += (const Mat2 &rhs){
 MAT3
 ==============================================
 */
+
+class Mat3{
+    public: 
+        Vec3 rows[3];
+};
+
+
+
 #endif // MAT_2_H!
