@@ -18,16 +18,17 @@
 
 #include "model.h"
 
-#include "load2DTexture.h"
-#include "models.h"
-#include "gameTextures.cpp"
+#include "Scene.h"
+//#include "load2DTexture.h"
+//#include "models.h"
+//#include "gameTextures.cpp"
 
 #include "editModeUI.h"
 
 const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
-const int SCR_WIDTH  = 16 * 80;
-const int SCR_HEIGHT =  9 * 90;
+//const int SCR_WIDTH  = 16 * 80;
+//const int SCR_HEIGHT =  9 * 90;
 
 bool editMode = false;
 
@@ -259,19 +260,22 @@ int main(){
 
     printf("%s\n", glGetString(GL_VERSION));
 
-    std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath, scenarioModelPath, containerModelPath;
-    metalCubePath = "../resources/Models/PhysicsCube/PhysicsCube.obj";
-    scenarioModelPath = "../resources/Models/PhysicsFloor/PhysicsFloor.obj";
-    containerModelPath = "../resources/Models/Container/container.obj";
-    
-    Model metalCube(metalCubePath);
-    Model scenario(scenarioModelPath);
-    Model container(containerModelPath);
+    //std::string backpackModelPath, teapotModelPath, caineModelPath, metalCubePath, scenarioModelPath, containerModelPath;
+    //metalCubePath = "../resources/Models/PhysicsCube/PhysicsCube.obj";
+    //scenarioModelPath = "../resources/Models/PhysicsFloor/PhysicsFloor.obj";
+    //containerModelPath = "../resources/Models/Container/container.obj";
+    //
+    //Model metalCube(metalCubePath);
+    //Model scenario(scenarioModelPath);
+    //Model container(containerModelPath);
     
     EditMode editUI(window);
 
         
     float yPos = 15.0f;
+
+    Scene physicsScene(&camera);
+    //physicsScene.SceneInit();
 
     while (!glfwWindowShouldClose(window)){
         processInput(window);
@@ -295,7 +299,10 @@ int main(){
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
-        
+
+        physicsScene.SceneRender(deltaTime, currentFrame, globalShader);
+        //Scene::SceneRender(deltaTime, currentFrame, globalShader);
+        /*
         // TEXTURE BINDING 
         //textures.woodBoxContainer.bindTexture(1);
         textures.pixelRedEye.bindTexture(7);
@@ -370,7 +377,7 @@ int main(){
         glUniformMatrix4fv(scenarioProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
         scenario.draw(globalShader);
 
-        /*
+        //
         globalShader.use();
         globalShader.setInt("material.texture_specular1", 7);
         globalShader.setFloat("material.shininess", 16);
@@ -394,7 +401,7 @@ int main(){
             glUniformMatrix4fv(containerModelLoc, 1, GL_FALSE, glm::value_ptr(containerModel));
             container.draw(globalShader);
         }
-        */
+        //
  
         // SCENARIO LIGHT SOURCE 
         globalShader.use();
@@ -416,7 +423,7 @@ int main(){
             metalCube.draw(globalShader);
         }
         globalShader.setBool("pointLightSource", 0); // RESET VALUE
-        
+        */        
         editUI.modifyShader(globalShader, camera); // ACTUAL UI
         editUI.renderUI(); // RENDER UI        
 

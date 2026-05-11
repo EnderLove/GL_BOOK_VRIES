@@ -20,22 +20,45 @@ const int SCR_WIDTH  = 16 * 80;
 const int SCR_HEIGHT =  9 * 90;
 
 class Scene{
-    public:
-        static Camera camera;
-        static std::string metalCubePath;
-        static std::string scenarioModelPath;
-        static std::string containerModelPath;
+    private:
+         Camera *camera;
+         std::string metalCubePath;
+         std::string scenarioModelPath;
+         std::string containerModelPath;
        
-        static LoadTextures textures;
+         LoadTextures textures;
 
-        static Model *metalCube;
-        static Model *scenario;
-        static Model *container;
+         Model *metalCube;
+         Model *scenario;
+         Model *container;
 
-        static glm::vec3 pointLightPositions[4];
-        static float yPos;
+         glm::vec3 pointLightPositions[4];
+         float yPos;
 
     public:
+        Scene(Camera *camera){
+            this->camera = camera;
+
+            //camera(glm::vec3(0.0f, 3.0f, 3.0f));
+            metalCubePath = "../resources/Models/PhysicsCube/PhysicsCube.obj";
+            scenarioModelPath = "../resources/Models/PhysicsFloor/PhysicsFloor.obj";
+            containerModelPath = "../resources/Models/Container/container.obj";
+
+            metalCube = new Model(metalCubePath);
+            scenario  = new Model(scenarioModelPath);
+            container = new Model(containerModelPath);
+
+            textures.loadAll();
+            pointLightPositions[0]  = glm::vec3( 15.0f, 2.0f,  15.0f);
+            //glm::vec3( 0.0f, 0.3f,  -2.0f),
+            pointLightPositions[1] = glm::vec3( 15.0f, 2.0f, -15.0f);
+            pointLightPositions[2] = glm::vec3(-15.0f, 2.0f, -15.0f);
+            pointLightPositions[3] = glm::vec3(-15.0f, 2.0f,  15.0f);
+
+            yPos = 15.0f;
+        }
+        
+        /*
         static void SceneInit(){
 
             //camera(glm::vec3(0.0f, 3.0f, 3.0f));
@@ -48,18 +71,17 @@ class Scene{
             container = new Model(containerModelPath);
 
             textures.loadAll();
-            pointLightPositions  = {
-                glm::vec3( 15.0f, 2.0f,  15.0f),
-                //glm::vec3( 0.0f, 0.3f,  -2.0f),
-                glm::vec3( 15.0f, 2.0f, -15.0f),
-                glm::vec3(-15.0f, 2.0f, -15.0f),
-                glm::vec3(-15.0f, 2.0f,  15.0f)
-            };
+            pointLightPositions[0]  = glm::vec3( 15.0f, 2.0f,  15.0f);
+            //glm::vec3( 0.0f, 0.3f,  -2.0f),
+            pointLightPositions[1] = glm::vec3( 15.0f, 2.0f, -15.0f);
+            pointLightPositions[2] = glm::vec3(-15.0f, 2.0f, -15.0f);
+            pointLightPositions[3] = glm::vec3(-15.0f, 2.0f,  15.0f);
 
             yPos = 15.0f;
         }
+        */
 
-        static void SceneRender(float deltaTime, float currentFrame, Shader globalShader){
+        inline void SceneRender(float deltaTime, float currentFrame, Shader &globalShader){
 
             // TEXTURE BINDING 
             //textures.woodBoxContainer.bindTexture(1);
@@ -71,14 +93,14 @@ class Scene{
             // GLOBAL VIEW & PROJECTION 
             glm::mat4 globalView       = glm::mat4(1.0f);
             glm::mat4 globalProjection = glm::mat4(1.0f);
-            globalView = camera.GetViewMatrix(); 
-            globalProjection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+            globalView = camera->GetViewMatrix(); 
+            globalProjection = glm::perspective(glm::radians(camera->Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         
             // LIGHT POS ROTATION 
             globalShader.use();
             globalShader.setFloat("flashLight.cutOff", glm::cos(glm::radians(15.0f)));
             globalShader.setFloat("flashLight.outerCutOff", glm::cos(glm::radians(20.0f)));
-            globalShader.setVec3("viewPos", camera.Position);
+            globalShader.setVec3("viewPos", camera->Position);
     
 
             //d = v * t 
