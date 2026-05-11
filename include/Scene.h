@@ -4,6 +4,7 @@
 // Scene
 // - Models
 // - Shader
+// TODO: Model paths could be an Array;
 //
 
 #include <glm/glm.hpp>

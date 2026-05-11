@@ -173,7 +173,8 @@ int main(){
 
     // SHADER LOADING 
     Shader globalShader("../shaders/globalVertexShader.glsl", "../shaders/globalFragmentShader1.glsl");
-
+    
+    /*
     globalShader.use();
     // Directional Light
     globalShader.setVec3("dirLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
@@ -232,7 +233,8 @@ int main(){
 
     globalShader.setVec3("flashLight.position", glm::vec3(0.0f, 10.0f, -10.0f));
     globalShader.setVec3("flashLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
-
+    */
+    
     glm::vec4 lightPos = glm::vec4(-5.0f, 2.0f, 0.0f, 1.0f); // changed from vec3 to vec4 to set the "w" component to change between direction and position
 
     glm::vec3 atteFlashConfig = glm::vec3(1.0f, 0.04f, 0.115f);
@@ -270,7 +272,7 @@ int main(){
     //Model container(containerModelPath);
     
     EditMode editUI(window);
-
+    editUI.setInitialConfig(globalShader);
         
     float yPos = 15.0f;
 
