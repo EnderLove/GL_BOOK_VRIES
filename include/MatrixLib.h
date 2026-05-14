@@ -58,13 +58,14 @@ class Mat4{
     public:
         Mat4() {}
         Mat4(const Mat4 &rhs);
-        Mat4(const float *mat);
+        Mat4(const float *mat); // WHY DO I HAVE TO PASS A POINTER TO A FLOAT VALUE? "REVIEW THE CODE"
         Mat4(const Vec4 &row0, const Vec4 &row1, const Vec4 &row2, const Vec4 &row3);
         Mat4 &operator = (const Mat4 &rhs);
         ~Mat4() {}
 
         void Zero();
         void Identity();
+        static Mat4 getIdentity(); // STATIC FUNCTION TO GET A IDENTITY MATRIX 4
 
         float Trace() const;
         float Determinant() const;
@@ -336,6 +337,15 @@ inline void Mat4::Identity(){
     rows[1] = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
     rows[2] = Vec4(0.0f, 0.0f, 1.0f, 0.0f);
     rows[3] = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+inline Mat4 Mat4::getIdentity(){ // TRYING TO GET A IDNETITY MAT4 
+    Mat4 temp;
+    temp.rows[0] = Vec4(1.0f, 0.0f, 0.0f, 0.0f);
+    temp.rows[1] = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    temp.rows[2] = Vec4(0.0f, 0.0f, 1.0f, 0.0f);
+    temp.rows[3] = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    return temp; 
 }
 
 inline float Mat4::Trace() const {

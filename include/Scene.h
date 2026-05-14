@@ -11,6 +11,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "VectorsLib.h"
+#include "MatrixLib.h"
+
 #include "model.h"
 #include "camera.h"
 #include "shader.h"
@@ -33,7 +36,7 @@ class Scene{
          Model *scenario;
          Model *container;
 
-         glm::vec3 pointLightPositions[4];
+         Vec3 pointLightPositions[4];
          float yPos;
 
     public:
@@ -50,11 +53,11 @@ class Scene{
             container = new Model(containerModelPath);
 
             textures.loadAll();
-            pointLightPositions[0]  = glm::vec3( 15.0f, 2.0f,  15.0f);
+            pointLightPositions[0]  = Vec3( 15.0f, 2.0f,  15.0f);
             //glm::vec3( 0.0f, 0.3f,  -2.0f),
-            pointLightPositions[1] = glm::vec3( 15.0f, 2.0f, -15.0f);
-            pointLightPositions[2] = glm::vec3(-15.0f, 2.0f, -15.0f);
-            pointLightPositions[3] = glm::vec3(-15.0f, 2.0f,  15.0f);
+            pointLightPositions[1] = Vec3( 15.0f, 2.0f, -15.0f);
+            pointLightPositions[2] = Vec3(-15.0f, 2.0f, -15.0f);
+            pointLightPositions[3] = Vec3(-15.0f, 2.0f,  15.0f);
 
             yPos = 15.0f;
         }
@@ -92,6 +95,9 @@ class Scene{
             textures.container2WoodEmission.bindTexture(6);
 
             // GLOBAL VIEW & PROJECTION 
+            //Mat4 globalViewMat = Mat4::getIdentity();
+            Mat4 globalViewMat;
+            globalViewMat.Identity(); // SECOND METHOD FOR GETTING A IDENTITY MATRIX
             glm::mat4 globalView       = glm::mat4(1.0f);
             glm::mat4 globalProjection = glm::mat4(1.0f);
             globalView = camera->GetViewMatrix(); 
