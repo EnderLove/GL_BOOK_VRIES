@@ -1,4 +1,5 @@
 #include "editModeUI.h"
+#include "globalShaderInitalConfig.h"
 
 EditMode::EditMode(GLFWwindow *window){
     IMGUI_CHECKVERSION();
@@ -24,6 +25,10 @@ void EditMode::refreshFrame(){
 void EditMode::renderUI(){
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void EditMode::setInitialConfig(Shader &shader){ 
+    InitialGlobalShaderConfig(shader);
 }
 
 void EditMode::modifyShader(Shader &shader, Camera &camera){

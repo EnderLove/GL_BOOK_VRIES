@@ -31,7 +31,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime){
     if (direction == RIGHT)
         Position += Right * velocity;
 
-    Position.y = 0;
+    Position.y = 3;
 }
 
 void Camera::processController(const float *axes, float deltaTime, float xOffset, float yOffset){
