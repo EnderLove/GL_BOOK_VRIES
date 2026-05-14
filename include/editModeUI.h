@@ -48,7 +48,7 @@ class EditMode{
         void refreshFrame();
         void renderUI();
 
-
+        void setInitialConfig(Shader &shader); // TODO THIS SHOULD USE THE SAME SHADER THE CLASS HAS I GUESS...
 };
 
 #endif // !EDIT_MODE_UI_H
