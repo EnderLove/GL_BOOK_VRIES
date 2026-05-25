@@ -11,6 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "models.h"
 #include "model.h"
 #include "camera.h"
 #include "shader.h"
@@ -119,10 +120,11 @@ class Scene{
                 //yPos += velocity;
             } 
 
+            /*
             globalShader.use();        
             globalShader.setFloat("material.shininess", 256);
             glm::mat4 metalCubeModel = glm::mat4(1.0f);
-            metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, yPos, -10.0f));
+            metalCubeModel = glm::translate(metalCubeModel, glm::vec3(0.0f, 2.0f, -10.0f));
             metalCubeModel = glm::scale    (metalCubeModel, glm::vec3(1.0f, 1.0f, 1.0f));
             //metalCubeModel = glm::rotate(metalCubeModel, glm::radians(90.0f + currentFrame * 10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             glm::mat4 metalCubeModelInverse = glm::inverse(metalCubeModel); // NORMAL MATRIX
@@ -135,6 +137,7 @@ class Scene{
             glUniformMatrix4fv(metalCubeViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
             glUniformMatrix4fv(metalCubeProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
             metalCube->draw(globalShader);
+            */ 
 
             globalShader.use();
             globalShader.setFloat("material.shininess", 1);
@@ -152,9 +155,9 @@ class Scene{
             glUniformMatrix4fv(scenarioProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
             scenario->draw(globalShader);
 
-            /*
+            
             globalShader.use();
-            globalShader.setInt("material.texture_specular1", 7);
+            globalShader.setInt("material.texture_specular1", 5);
             globalShader.setFloat("material.shininess", 16);
             glm::mat4 containerModel = glm::mat4(1.0f);
             glm::mat4 containerModelInverse = glm::inverse(containerModel); // NORMAL MATRIX
@@ -168,15 +171,16 @@ class Scene{
             for (unsigned int i = 0; i < 10; i++){
                 containerModel = glm::mat4(1.0f);
                 containerModel = glm::translate(containerModel, cubePosition[i]);
+                containerModel = glm::translate(containerModel, glm::vec3(0.0f, 3.0f, 0.0f));
                 containerModel = glm::scale(containerModel, glm::vec3(0.5f, 0.5f, 0.5f));
                 float angle = 20.0f * i;
                 containerModel = glm::rotate(containerModel, glm::radians(angle + currentFrame * 15), glm::vec3(1.0f, 0.3f, 0.5f));
                 containerModelInverse = glm::inverse(containerModel); // NORMAL MATRIX
                 glUniformMatrix4fv(containerModelInvLoc, 1, GL_FALSE, glm::value_ptr(containerModelInverse));
                 glUniformMatrix4fv(containerModelLoc, 1, GL_FALSE, glm::value_ptr(containerModel));
-                container.draw(globalShader);
+                container->draw(globalShader);
             }
-            */
+            
     
             // SCENARIO LIGHT SOURCE 
             globalShader.use();

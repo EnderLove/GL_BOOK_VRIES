@@ -159,6 +159,8 @@ int main(){
     loadControllerGamePad();
 
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    //glDepthMask(GL_FALSE);
     
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
@@ -204,7 +206,8 @@ int main(){
         }
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
+        glClear( GL_DEPTH_BUFFER_BIT); // State-using function 
 
         editUI.refreshFrame(); // EDIT MODE FRAME REFRESH
 

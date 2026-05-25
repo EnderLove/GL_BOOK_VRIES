@@ -65,6 +65,14 @@ in vec2 texCoord;
 
 out vec4 FragColor;
 
+float near = 0.1;
+float far = 100.0;
+
+float linearizeDepth(float depth){
+    float z = depth * 2.0 - 1.0; // BACK TO NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}
+
 // TODO:REFACTOR CALCULATIONS
 void main(){
 
@@ -89,7 +97,10 @@ void main(){
     // Flash light
     result += calcFlashLight(flashLight, norm, fragPos, viewDir); 
 
-    FragColor = vec4(result, 1.0);
+    float depth = linearizeDepth(gl_FragCoord.z) / far;
+
+    //FragColor = vec4(result, 1.0);
+    FragColor = vec4(vec3(depth), 1.0);
 }
 
 vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir){
