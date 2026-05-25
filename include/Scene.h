@@ -43,7 +43,8 @@ class Scene{
 
             //camera(glm::vec3(0.0f, 3.0f, 3.0f));
             metalCubePath = "../resources/Models/PhysicsCube/PhysicsCube.obj";
-            scenarioModelPath = "../resources/Models/PhysicsFloor/PhysicsFloor.obj";
+            //scenarioModelPath = "../resources/Models/PhysicsFloor/PhysicsFloor.obj";
+            scenarioModelPath = "../resources/Models/Scenario01/Scenario01.obj";
             containerModelPath = "../resources/Models/Container/container.obj";
 
             metalCube = new Model(metalCubePath);
@@ -140,7 +141,7 @@ class Scene{
             */ 
 
             globalShader.use();
-            globalShader.setFloat("material.shininess", 1);
+            globalShader.setFloat("material.shininess", 256);
             glm::mat4 scenarioModel = glm::mat4(1.0f);
             scenarioModel = glm::translate(scenarioModel, glm::vec3(0.0f, 0.0f, 0.0f));
             scenarioModel = glm::scale    (scenarioModel, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -153,9 +154,8 @@ class Scene{
             glUniformMatrix4fv(scenarioModelInvLoc, 1, GL_FALSE, glm::value_ptr(scenarioModelInverse));
             glUniformMatrix4fv(scenarioViewLoc    , 1, GL_FALSE, glm::value_ptr(globalView));
             glUniformMatrix4fv(scenarioProjLoc    , 1, GL_FALSE, glm::value_ptr(globalProjection));
-            scenario->draw(globalShader);
+            scenario->draw(globalShader);   
 
-            
             globalShader.use();
             globalShader.setInt("material.texture_specular1", 5);
             globalShader.setFloat("material.shininess", 16);
@@ -180,8 +180,7 @@ class Scene{
                 glUniformMatrix4fv(containerModelLoc, 1, GL_FALSE, glm::value_ptr(containerModel));
                 container->draw(globalShader);
             }
-            
-    
+
             // SCENARIO LIGHT SOURCE 
             globalShader.use();
             globalShader.setBool("pointLightSource", 1);

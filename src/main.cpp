@@ -29,8 +29,12 @@ const int SCR_SOURCE_WIDTH  = 1920;
 const int SCR_SOURCE_HEIGHT = 1080;
 //const int SCR_WIDTH  = 16 * 80;
 //const int SCR_HEIGHT =  9 * 90;
+const int MAX_FRAG_SHADER_OUTPUT_STATES = 2;
 
 bool editMode = false;
+int fragShaderOutputState = 0;
+float screenWidth  = 0;
+float screenHeight = 0;
 
 Camera camera(glm::vec3(0.0f, 3.0f, 3.0f)); // Initialization of the camera with a pos
 
@@ -45,6 +49,8 @@ float r = 0.05f; float g = 0.05f; float b = 0.05f; // BACKGROUND COLOR
 
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height){
     glViewport(0, 0, width, height);
+    screenWidth  = width;
+    screenHeight = height;
     printf("RESIZE: %4d | %4d\n", width, height);
 }
 
@@ -55,6 +61,12 @@ void processInput(GLFWwindow *window){
         editMode = true;
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
         editMode = false;
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS){  // CHANGE FRAGMENT SHADER OUTPUT
+        fragShaderOutputState++;
+        
+        if (fragShaderOutputState > MAX_FRAG_SHADER_OUTPUT_STATES)
+            fragShaderOutputState = 0;
+    }
 }
 
 void cursorCallBack(GLFWwindow *window, double xPos, double yPos){
@@ -206,14 +218,17 @@ int main(){
         }
 
         glClearColor(r, g, b, 1.0f);  // This functions is a state-setting func for "glClear()"
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
-        glClear( GL_DEPTH_BUFFER_BIT); // State-using function 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // State-using function 
 
         editUI.refreshFrame(); // EDIT MODE FRAME REFRESH
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
 
+        globalShader.use();
+        globalShader.setInt("fragOutputState", fragShaderOutputState); 
+        globalShader.setVec2("viewportResolution", glm::vec2(screenWidth, screenHeight)); 
+        //printf("FRAG_SHADER_STATE: %d\n", fragShaderOutputState);
         physicsScene.SceneRender(deltaTime, currentFrame, globalShader);
 
         editUI.modifyShader(globalShader, camera); // ACTUAL UI

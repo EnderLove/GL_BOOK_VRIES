@@ -59,9 +59,13 @@ uniform int nPointLight;
 uniform vec3 viewPos;
 uniform float time;
 
+uniform int fragOutputState; // CHANGE THE OUTPUT OF THE SHADER BY ITS STATE
+uniform vec2 viewportResolution; // GET THE VIEWPORT RESOLUTION
+
 in vec3 fragPos;
 in vec3 normal;
 in vec2 texCoord;
+
 
 out vec4 FragColor;
 
@@ -76,31 +80,48 @@ float linearizeDepth(float depth){
 // TODO:REFACTOR CALCULATIONS
 void main(){
 
-    if (pointLightSource){
-        FragColor = vec4(pointLights[nPointLight].diffuse, 1.0);
-        return;
-    } 
+    float depth;
+    
+    switch (fragOutputState){
+        case 0:
+            if (pointLightSource){
+                FragColor = vec4(pointLights[nPointLight].diffuse, 1.0);
+                return;
+            } 
 
-    // Properties
-    vec3 norm = normalize(normal); 
-    vec3 viewDir = normalize(viewPos - fragPos);
-    vec3 result = vec3(0.0);
+            // Properties
+            vec3 norm = normalize(normal); 
+            vec3 viewDir = normalize(viewPos - fragPos);
+            vec3 result = vec3(0.0);
 
-    // Directional lighting
-    result = calcDirLight(dirLight, norm, viewDir);
+            // Directional lighting
+            result = calcDirLight(dirLight, norm, viewDir);
 
-    // Point lights 
-    for (int i = 0; i < NR_POINT_LIGHTS; i++){
-        result += calcPointLight(pointLights[i], norm, fragPos, viewDir);
+            // Point lights 
+            for (int i = 0; i < NR_POINT_LIGHTS; i++){
+                result += calcPointLight(pointLights[i], norm, fragPos, viewDir);
+            }
+
+            // Flash light
+            result += calcFlashLight(flashLight, norm, fragPos, viewDir); 
+            
+            depth = linearizeDepth(gl_FragCoord.z) / far;
+            FragColor = vec4(vec3(depth), 1.0);
+
+            FragColor = vec4(result + depth, 1.0);
+            break;
+
+        case 1:
+            depth = linearizeDepth(gl_FragCoord.z) / far;
+            FragColor = vec4(vec3(depth), 1.0);
+            break;
+
+        case 2:
+            vec2 uv = gl_FragCoord.xy / viewportResolution;
+            depth = linearizeDepth(gl_FragCoord.z) / far;
+            FragColor = vec4(uv.x - depth, uv.y - depth, depth, 1.0);
+            break;
     }
-
-    // Flash light
-    result += calcFlashLight(flashLight, norm, fragPos, viewDir); 
-
-    float depth = linearizeDepth(gl_FragCoord.z) / far;
-
-    //FragColor = vec4(result, 1.0);
-    FragColor = vec4(vec3(depth), 1.0);
 }
 
 vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir){
